@@ -3,7 +3,7 @@
 struct UART_buffer Tx_buffer;
 struct UART_buffer Rx_buffer;
 
-void write(char _buffer[], struct UART _UART){
+void write(char _buffer[]){
     Tx_buffer.head = strlen(_buffer); //Указание длинны сообщения
     Tx_buffer.tail = 1;
     
@@ -11,7 +11,7 @@ void write(char _buffer[], struct UART _UART){
         Tx_buffer.buffer[_buffer_index] = (uint8_t)_buffer[_buffer_index]; //Заполнение буфера
     }
 
-    *_UART.UART_TDR = Tx_buffer.buffer[0]; //"Зажигание" 
+    *UART.UART_TDR = Tx_buffer.buffer[0]; //"Зажигание" 
 }
 
 char* read(){
@@ -26,18 +26,52 @@ char* read(){
     return _buffer;
 }
 
-void send(struct UART _UART){
+void send(){
     //Передача в FIFO
-    while(*_UART.UART_FR & (1 << 7) && *_UART.UART_FR & (0 << 5) && Tx_buffer.tail < Tx_buffer.head){
-        *_UART.UART_TDR = Tx_buffer.buffer[Tx_buffer.tail];
+    while(*UART.UART_FR & (1 << 7) && *UART.UART_FR & (0 << 5) && Tx_buffer.tail < Tx_buffer.head){
+        *UART.UART_TDR = Tx_buffer.buffer[Tx_buffer.tail];
         Tx_buffer.tail++; //Записывание текущей позиции
+    }
+
+    if(Tx_buffer.tail == Tx_buffer.head){
+        *UART.UART_ICR = *UART.UART_MIS;
+
+        volatile uint32_t _IAR_for_EOI;
+
+        __asm__("MRS %0, ICC_IAR1_EL1" : "r"(_IAR_for_EOI));
+        __asm__("MSR ICC_EOI1R_EL1, %0" : "r"(_IAR_for_EOI));
     }
 }
 
-void reciving(struct UART _UART){
-    if(*_UART.UART_FR & (0 << 4)){
-        Rx_buffer.buffer[Rx_buffer.head] = *_UART.UART_TDR;
+void receving(){
+    while(*UART.UART_FR & (0 << 4) && *UART.UART_FR & (0 << 6)){
+        Rx_buffer.buffer[Rx_buffer.head] = *UART.UART_TDR;
         Rx_buffer.head++;
+    }
+
+    if(*UART.UART_TDR == (uint8_t)'\0'){
+        *UART.UART_ICR = *UART.UART_MIS;
+
+        volatile uint32_t _IAR_for_EOI;
+
+        __asm__("MRS %0, ICC_IAR1_EL1" : "r"(_IAR_for_EOI));
+        __asm__("MSR ICC_EOI1R_EL1, %0" : "r"(_IAR_for_EOI));
+    }
+
+}
+
+void GIC_interpput(){
+    volatile uint32_t _IAR_ID;
+
+    __asm__("MRS %0, ICC_IAR1_EL1" : "r"(_IAR_ID));
+
+    if(_IAR_ID == UART.interrput){
+        if(*UART.UART_MIS & (1 << 5)){
+            send();
+        }
+        else if(*UART.UART_MIS & (1 << 4)){
+            receving();
+        }
     }
 }
 

@@ -11,8 +11,8 @@ struct BRR_UART{
 };
 
 struct GIC{
-    volatile unsigned int* GIC;
-    volatile unsigned int* GIC_IRQ;
+    volatile uint32_t* GICD_ISENABLER1;
+    volatile uint32_t* GICD_ITARGETR1;
 };
 
 struct UART{
@@ -24,6 +24,10 @@ struct UART{
     volatile unsigned int* UART_FR; //Регистр состояния UART
     volatile int* UART_IBRD; //Коэффициент замедления скорости(int)
     volatile double* UART_FBRD; //Коэффициент замедление скорости(float)
+    volatile unsigned int* UART_MIS; //Хранит, какое имено прерывание из 33 ID(Tx или Rx)
+    volatile unsigned int* UART_ICR; //Обнуление прерывания
+    volatile unsigned int* UART_IFLS; //Параметр срабатывания FIFO
+    int interrput;
 };
 
 struct UART_buffer{
