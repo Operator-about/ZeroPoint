@@ -34,11 +34,11 @@ void send(){
     }
 
     if(Tx_buffer.tail == Tx_buffer.head){
-        *UART.UART_ICR = *UART.UART_MIS;
+        *UART.UART_ICR &= (0 << 5);
 
         volatile uint32_t _IAR_for_EOI;
 
-        __asm__("MRS %0, ICC_IAR1_EL1" : "r"(_IAR_for_EOI));
+        __asm__("MRS %0, ICC_IAR1_EL1" : "=r"(_IAR_for_EOI));
         __asm__("MSR ICC_EOI1R_EL1, %0" : "r"(_IAR_for_EOI));
     }
 }
@@ -50,11 +50,11 @@ void receving(){
     }
 
     if(*UART.UART_TDR == (uint8_t)'\0'){
-        *UART.UART_ICR = *UART.UART_MIS;
+        *UART.UART_ICR &= (0 << 4);
 
         volatile uint32_t _IAR_for_EOI;
 
-        __asm__("MRS %0, ICC_IAR1_EL1" : "r"(_IAR_for_EOI));
+        __asm__("MRS %0, ICC_IAR1_EL1" : "=r"(_IAR_for_EOI));
         __asm__("MSR ICC_EOI1R_EL1, %0" : "r"(_IAR_for_EOI));
     }
 
@@ -63,7 +63,7 @@ void receving(){
 void GIC_interpput(){
     volatile uint32_t _IAR_ID;
 
-    __asm__("MRS %0, ICC_IAR1_EL1" : "r"(_IAR_ID));
+    __asm__("MRS %0, ICC_IAR1_EL1" : "=r"(_IAR_ID));
 
     if(_IAR_ID == UART.interrput){
         if(*UART.UART_MIS & (1 << 5)){
@@ -72,6 +72,9 @@ void GIC_interpput(){
         else if(*UART.UART_MIS & (1 << 4)){
             receving();
         }
+    }
+    else if(_IAR_ID == 1023){
+        __asm__("MSR ICC_EOI1R_EL1, %0" : "r"(_IAR_ID));
     }
 }
 

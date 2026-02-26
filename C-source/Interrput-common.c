@@ -1,20 +1,18 @@
 #include<Interrput.h>
 
-struct UART UART;
-struct GIC GIC;
-
 void GIC_common_configure(){
-    GIC.GICD_ISENABLER1 = 0x08000000 + 0x0100;
-    GIC.GICD_IROUTER1 = 0x08000000 + 0x6000;
+
+    volatile unsigned int* _PMR = 0xFF;
+    __asm__("MSR ICC_PMR_EL1, %0" : "r"(_PMR)); //Установление порога
+
+    GIC.GICD_ISENABLER1 = 0x08000000 + 0x0100  + (33 / 32 * 4); //Запись адреса прерывания 33
+    GIC.GICD_IROUTER1 = 0x08000000 + 0x6000 + (33 / 8); //Запись адреса 
 
     //Формула для вычесления адреса ID прерывания: 0x0100 + (n(номер регистра прерывания) * 4)
-    //Формула для вычесление номера регистра прерывания: ID % 32  
+    //Формула для вычесление номера регистра прерывания: ID / 32  
 
-    uint32_t _register_number = 33 / 32; //Запись номера регистра для 33 прервания
-    uint32_t _address_ID = GIC.GICD_ISENABLER1 + (_register_number * 4); //Запись адреса(смещение) данного регистра
-
-    *GIC.GICD_ISENABLER1 |= (1 << _address_ID); //Разрешение на прерывание по данному адресу
-    *GIC.GICD_IROUTER1 |= (1 << (33 / 4)); //Записывание, на какое именно ядро будет отправлено исключение 33
+    *GIC.GICD_ISENABLER1 |= (1 << (33 / 32)); //Разрешение на прерывание по данному адресу
+    *GIC.GICD_IROUTER1 |= (1 << 0x0); //Записывание, на какое именно ядро будет отправлено исключение 33
 }
 
 
@@ -41,11 +39,11 @@ void UART_common_configure(struct UART _UART){
     //Настройка параметров
     *_UART.UART_CR1 |= (1 << 8) | (1 << 9);
                         //Чётность  //Проверка  //FIFO     //Режим   //M
-    *_UART.UART_LCR_H |= (1 << 1) | (0 << 2) | (1 << 4) | (0 << 7) | (8 << 5); //Настройка параметров передачи данных
+    *_UART.UART_LCR_H |= (1 << 1) | (0 << 2) | (1 << 4) | (0 << 7) | (3 << 5); //Настройка параметров передачи данных
     *_UART.UART_BRR = 9600; //Скорость передачи
     *_UART.UART_IBRD = _BRR.IBRD; 
     *_UART.UART_FBRD = _BRR.FBRD;
                        //Rx FIFO     //Tx FIFO
-    *_UART.UART_IFLS |= (010 << 3) | (010 << 0);
+    *_UART.UART_IFLS |= (0b10 << 3) | (0b10 << 0);
     *_UART.UART_CR1 |= (1 << 0); //Включение
 }

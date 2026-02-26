@@ -12,7 +12,7 @@ struct BRR_UART{
 
 struct GIC{
     volatile uint32_t* GICD_ISENABLER1;
-    volatile uint32_t* GICD_ITARGETR1;
+    volatile uint32_t* GICD_IROUTER1;
 };
 
 struct UART{

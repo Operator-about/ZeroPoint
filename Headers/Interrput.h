@@ -24,6 +24,7 @@ void send();
 void receving();
 
 void GIC_interpput();
+void GIC_common_configure();
 
 void UART_common_configure();
 void UART_md_configure();
