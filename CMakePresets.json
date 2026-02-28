@@ -4,7 +4,6 @@
         {
             "name": "ZeroPoint-preset",
             "displayName": "GCC 15.2.1 aarch64-none-elf",
-            "description": "Using compilers: C = C:\\Program Files (x86)\\Arm64\\bin\\aarch64-none-elf-gcc.exe, CXX = C:\\Program Files (x86)\\Arm64\\bin\\aarch64-none-elf-g++.exe",
             "binaryDir": "${sourceDir}/out/build/${presetName}",
             "generator": "Ninja",
             "cacheVariables": {

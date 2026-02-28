@@ -11,9 +11,11 @@ struct BRR_UART{
 };
 
 struct GIC{
-    volatile uint32_t* GICD_ISENABLER1;
-    volatile uint64_t* GICD_IROUTER1;
-    volatile uint32_t* GICD_IPRIORITY; //Приоритет конкретному прерыванию
+    volatile uint32_t* GICD_ISENABLER[4];
+    volatile uint64_t* GICD_IROUTER[128];
+    volatile uint32_t* GICD_IPRIORITY[4]; //Приоритет конкретному прерыванию
+    volatile uint32_t* GICD_IGROUPR[4];
+    volatile uint32_t* GICD_CTLR;
 };
 
 struct UART{
