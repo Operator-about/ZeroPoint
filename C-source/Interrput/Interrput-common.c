@@ -14,7 +14,7 @@ void GIC_common_configure(){
     GIC.GICD_CTLR = (volatile uint32_t*)(0x08000000 + 0x0000);
     *GIC.GICD_CTLR |= (0b1 << 6) | (0b1 << 1);
 
-    for(int _ID = 0; _ID > 128; _ID++){
+    for(int _ID = 0; _ID < 128; _ID++){
 
         _index_ENABLER = (_ID / 32);
         _index_PRIORITYR = (_ID / 4);
