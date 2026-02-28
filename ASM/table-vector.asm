@@ -1,36 +1,57 @@
+.section .vectors
 .global vector_table
 .global GIC_interrput
 
-//Заглушка
-.align 128
-current_EL:
+.macro vector_entry label
+    .align 7
+    b \label
+.endm    
 
-//Обработка ошибок(SVE)
-.align 128
-current_EL_spx: 
+.align 11
+vector_table:
     
+    vector_entry sync_invalid_el1t
+    vector_entry irq_invalid_el1t
+    vector_entry fiq_invalid_el1t
+    vector_entry error_invalid_el1t
 
-//Обработка прерываний
-.align 128
-lower_EL:
-    STP X0, X1 [SP, #0] //Сохранение регистров X0-X1 в стек(SP регистр). STP - аналог str
-    STP X2, X3 [SP, #16]
-    STP X4, X5 [SP, #32]
-    STP X6, X7 [SP, #48]
-    STP X8, X9 [SP, #64]
-    STP X10, X11[SP, #80]
+    vector_entry sync_handler_el1h
+    vector_entry irg_handler //Обычные прерывания
+
+    irg_handler:
+        STP X0, X1, [SP, #0] //Сохранение регистров X0-X1 в стек(SP регистр). STP - аналог str. Отступ +16
+        STP X2, X3, [SP, #16]
+        STP X4, X5, [SP, #32]
+        STP X6, X7, [SP, #48]
+        STP X8, X9, [SP, #64]
+        STP X10, X11, [SP, #80]
+        STP X30, X31. [SP, #96]
     
-    MRS X0, ELR_EL1 //Чтение PC регистра, через ELR_EL1
+        MRS X0, ELR_EL1 //Чтение PC регистра, через ELR_EL1
+        MRS X1, SPSR_EL1
 
-    STR X0, SP [#96] //Сохранение PC регистра в X0(в SP регистр)
+        STP X0, X1, [SP, #112] //Сохранение PC регистра в X0(в SP регистр)
 
-    MOV X0, SP //Передаём указатель на всю сохранёную информацию в C функцую
-    B GIC_interrput //Обработка прерывания
+        MOV X0, SP //Передаём указатель на всю сохранёную информацию в C функцую
+        BL GIC_interrput //Обработка прерывания
 
-    //Возвращение значение из SP регистра. LDP - аналог ldr 
-    LDP X0, X1 [SP, #0]
-    LDP X2, X3 [SP, #16]
-    LDP X3, X5 [SP, #32]
+        //Возвращение значение из SP регистра. LDP - аналог ldr 
+        LDP X0, X1, [SP, #112]
+        MSR ELR_EL1, X0
+        MSR SPSR_EL1, X1
+
+        LDP X30, X31, [SP, #112]
+        LDP X10, X11,[SP, #80]
+        LDP X8, X9, [SP, #64]
+        LDP X6, X7, [SP, #48]
+        LDP X4, X5, [SP, #32]
+        LDP X2, X3, [SP, #16]
+        LDP X0, X1, [SP, #0] 
+
+        ADD SP, SP, #160
+        ERET
+
+
 
 
     

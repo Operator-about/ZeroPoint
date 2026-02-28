@@ -23,7 +23,7 @@ struct BRR_UART calculate_BRR(int _BRR, int _tack);
 void send();
 void receving();
 
-void GIC_interpput();
+extern void GIC_interrput();
 void GIC_common_configure();
 
 void UART_common_configure();

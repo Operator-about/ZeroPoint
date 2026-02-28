@@ -1,0 +1,3 @@
+D:/ZeroPoint/out/build/ZeroPoint-preset/CMakeFiles/ZeroPoint.elf.dir
+D:/ZeroPoint/out/build/ZeroPoint-preset/CMakeFiles/edit_cache.dir
+D:/ZeroPoint/out/build/ZeroPoint-preset/CMakeFiles/rebuild_cache.dir

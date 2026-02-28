@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"D:/ZeroPoint/out/build/ZeroPoint-preset/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

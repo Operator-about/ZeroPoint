@@ -1,0 +1,11 @@
+# ninja log v7
+55	157	7939010809897507	CMakeFiles/ZeroPoint.elf.dir/ASM/startup.asm.obj	98e4c487f2586217
+29	134	7939055811774330	CMakeFiles/ZeroPoint.elf.dir/Kernel.c.obj	c35fbe6574cf415c
+23	143	7939055811706847	CMakeFiles/ZeroPoint.elf.dir/C-source/Interrput/Interrput-common.c.obj	aadc18de1748aa65
+20	152	7939049856479773	CMakeFiles/ZeroPoint.elf.dir/C-source/Interrput/Interrput.c.obj	bb5348c927a185c9
+3	52	7939026768448687	CMakeFiles/ZeroPoint.elf.dir/ASM/table-vector.asm.obj	1623f0b1f753da02
+143	217	7939055812908315	ZeroPoint.elf	9cc872da62a60b4d
+25	487	7939632154825006	CMakeFiles/ZeroPoint.elf.dir/Kernel.c.obj	c35fbe6574cf415c
+16	507	7939632154744776	CMakeFiles/ZeroPoint.elf.dir/C-source/Interrput/Interrput-common.c.obj	aadc18de1748aa65
+6	514	7939632154651041	CMakeFiles/ZeroPoint.elf.dir/C-source/Interrput/Interrput.c.obj	bb5348c927a185c9
+514	1507	7939632159728666	ZeroPoint.elf	9cc872da62a60b4d
