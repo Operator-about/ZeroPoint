@@ -5,14 +5,22 @@
 //2 - Md
 #define CPU 0
 
-struct UART UART;
-struct GIC GIC;
+volatile struct UART UART;
+volatile struct GIC GIC;
+volatile struct GIC_registers_data GIC_Registers;
 
 
 int main(void){
 #if CPU == 0
-    GIC_common_configure();
-    UART_common_configure();
+    GIC_common_configure(&GIC_Registers);
+
+    check_UART_avaible_common(&UART);
+
+    UART_common_configure(&UART);
+
+    
+     
+
 #elif CPU == 1
     UART_qcom_configure();
 #elif CPU == 2
@@ -21,7 +29,9 @@ int main(void){
     #error "Error"          
 #endif
 
-    write("Hello");
+    write("Hello world from Zero Point! And Hello all! Welcom!");
 
-    return 0;
+    while(1){
+        
+    }
 }

@@ -5,11 +5,12 @@
 
 extern struct UART_buffer Tx_buffer;
 extern struct UART_buffer Rx_buffer;
-extern struct UART UART;
-extern struct GIC GIC;
+extern volatile struct GIC GIC;
+extern volatile struct UART UART;
+extern volatile struct GIC_registers_data GIC_Registers;
 
 //Функции для проверки доступности UART
-struct UART check_UART_avaible_common();
+void check_UART_avaible_common(volatile struct UART* _UART);
 struct UART check_UART_avaible_qcom();
 struct UART check_UART_avaible_md();
 
@@ -23,9 +24,12 @@ struct BRR_UART calculate_BRR(int _BRR, int _tack);
 void send();
 void receving();
 
-extern void GIC_interrput();
-void GIC_common_configure();
+void GIC_interrput();
+void GIC_common_configure(volatile struct GIC_registers_data* _Registers_data);
 
-void UART_common_configure();
+int length(char _buffer[]);
+void Tx_clear();
+
+void UART_common_configure(volatile struct UART* _UART);
 void UART_md_configure();
 void UART_qcom_configure();

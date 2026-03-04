@@ -1,4 +1,4 @@
-.section .vectors
+.section ".vectors"
 .global vector_table
 .global GIC_interrput
 
@@ -21,7 +21,7 @@ vector_table:
     irg_handler:
         SUB SP, SP, #160
 
-        STP X0, X1, [SP, #0] //Сохранение регистров X0-X1 в стек(SP регистр). STP - аналог str. Отступ +16
+        STP X0, X1, [SP] //Сохранение регистров X0-X1 в стек(SP регистр). STP - аналог str. Отступ +16
         STP X2, X3, [SP, #16]
         STP X4, X5, [SP, #32]
         STP X6, X7, [SP, #48]

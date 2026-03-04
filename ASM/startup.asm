@@ -4,13 +4,16 @@
 
 _start:
     //Настройка таблицы-векторов
+    LDR X0, =0x40101000
+    MOV SP, X0
     ADR X0, vector_table
     MSR VBAR_EL1, X0 //Загрузка таблицы векторов
     MSR DAIFCLR, #2
 
-    MRS X0, MPIDR_EL1
-    AND X0, X0, #0xFF
-    CBZ X0, master
+    //MRS X0, MPIDR_EL1
+    //AND X0, X0, #0xFF
+    //CBZ X0, master
+    BL main
 hang:
     WFE
     B hang  
@@ -19,6 +22,7 @@ master:
     MOV SP, X0
     LDR X0, =__bss_start
     LDR X1, =__bss_end
+    BL main
 bss_loop:
     CMP X0, X1
     B.GE setup_fpu
@@ -29,7 +33,7 @@ setup_fpu:
     MSR CPACR_EL1, X0
     ISB
 
-    BL main
+    
 
 
     

@@ -1,2 +1,5 @@
 .vscode/*
 *.code-workspace
+out/*
+ZeroPoint.elf
+ZeroPoint.bin

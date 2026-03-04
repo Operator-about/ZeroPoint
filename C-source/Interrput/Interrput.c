@@ -4,23 +4,24 @@ struct UART_buffer Tx_buffer;
 struct UART_buffer Rx_buffer;
 
 void write(char _buffer[]){
-    Tx_buffer.head = sizeof(_buffer) / sizeof(_buffer[0]); //Указание длинны сообщения
+
+    Tx_buffer.head = length(_buffer); //Указание длинны сообщения
     Tx_buffer.tail = 1;
     
-    for(int _buffer_index = 0; _buffer_index < Tx_buffer.head; _buffer_index++){
-        Tx_buffer.buffer[_buffer_index] = (uint8_t)_buffer[_buffer_index]; //Заполнение буфера
+    for(int _buffer_index = 0; _buffer_index < length(_buffer); _buffer_index++){
+        Tx_buffer.buffer[_buffer_index] = _buffer[_buffer_index];
     }
 
-    *UART.UART_TDR = (volatile uint32_t)Tx_buffer.buffer[0]; //"Зажигание" 
+    
+    *UART.UART_DR = (volatile uint32_t)Tx_buffer.buffer[0];
 }
-
 char* read(){
     Rx_buffer.tail = 0;
 
     char* _buffer = "";
     while(Rx_buffer.tail < Rx_buffer.head){
-        _buffer += Rx_buffer.buffer[Rx_buffer.tail];
-        Rx_buffer.tail++;
+        // _buffer += Rx_buffer.buffer[Rx_buffer.tail];
+        // Rx_buffer.tail++;
     }
 
     return _buffer;
@@ -28,64 +29,75 @@ char* read(){
 
 void send(){
     //Передача в FIFO
-    while(*UART.UART_FR & (1 << 7) && *UART.UART_FR & (0 << 5) && Tx_buffer.tail < Tx_buffer.head){
-        *UART.UART_TDR = (volatile uint32_t)Tx_buffer.buffer[Tx_buffer.tail];
-        Tx_buffer.tail++; //Записывание текущей позиции
+    //5 - FIFO FULL
+    
+    while((*UART.UART_FR & (1 << 5)) == 0 && Tx_buffer.tail < Tx_buffer.head){
+        *UART.UART_DR = (volatile uint32_t)Tx_buffer.buffer[Tx_buffer.tail];
+        Tx_buffer.tail++;
     }
 
     if(Tx_buffer.tail == Tx_buffer.head){
-        *UART.UART_ICR &= (0 << 5);
-
-        volatile uint32_t _IAR_for_EOI;
-
-        __asm__("MRS %0, ICC_IAR1_EL1" : "=r"(_IAR_for_EOI));
-        __asm__("MSR ICC_EOIR1_EL1, %0" : : "r"(_IAR_for_EOI));
+        Tx_clear();
+        *UART.UART_ICR = 1;
     }
 }
 
 void receving(){
-    while(*UART.UART_FR & (0 << 4) && *UART.UART_FR & (0 << 6)){
-        Rx_buffer.buffer[Rx_buffer.head] = (volatile uint8_t)*UART.UART_TDR;
-        Rx_buffer.head++;
-    }
-
-    if(*UART.UART_TDR == (uint8_t)'\0'){
-        *UART.UART_ICR &= (0 << 4);
-
-        volatile uint32_t _IAR_for_EOI;
-
-        __asm__("MRS %0, ICC_IAR1_EL1" : "=r"(_IAR_for_EOI));
-        __asm__("MSR ICC_EOIR1_EL1, %0" : : "r"(_IAR_for_EOI));
-    }
-
+    //! - так как идёт проверка: FIFO НЕ РАВНО = ЧТО ОНО ЗАПОЛНЕНО !(т.е. 1 << 4 FIFO НЕ РАВНО 0). А побитовое & всегда даст 0
+    //4 - FIFO EMPETY
+    //6 - FIFO FULL
+    int _valid = 1;
+    if((*UART.UART_FR & (1 << 6)) == 0 && _valid == 1){
+        
+        
+    }   
 }
 
-extern void GIC_interrput(){
+void GIC_interrput(){
+    *(volatile uint32_t*)0x09000000 = 'F'; 
     volatile uint32_t _IAR_ID;
-
+    volatile volatile struct UART* _UART = &UART;
     __asm__("MRS %0, ICC_IAR1_EL1" : "=r"(_IAR_ID));
 
-    if(_IAR_ID == UART.interrput){
-        if(*UART.UART_MIS & (1 << 5)){
+    if(_IAR_ID == _UART->interrput){
+        if(*_UART->UART_MIS & (1 << 5)){
+            *(volatile uint32_t*)0x09000000 = '3'; 
             send();
         }
-        else if(*UART.UART_MIS & (1 << 4)){
+        if(*_UART->UART_MIS & (1 << 4)){
+            *(volatile uint32_t*)0x09000000 = '2'; 
             receving();
         }
     }
-    else if(_IAR_ID == 1023){
-        __asm__("MSR ICC_EOIR1_EL1, %0" : : "r"(_IAR_ID));
-    }
-    else{
-        __asm__("MSR ICC_EOIR1_EL1, %0" : : "r"(_IAR_ID));
-    }
+    __asm__("MSR ICC_EOIR1_EL1, %0" : : "r"(_IAR_ID));
 }
 
 struct BRR_UART calculate_BRR(int _BRR, int _tact){
     
-    int _BRDDIVF = _tact % (_BRR * 16); //Расчёт FBRD
-    int _BRDDIVI = _tact / (_BRR * 16); //Расёт IBRD
+    //I - основная скорость передачи в UART
+    //F - можно сказать, что это стабилизатор I. Измерение в I могут быть чу-чуть не точные, так, как полсе деления остаётся остаток, который никуда не записывается
+    //F работает так: берёт остаток от деления при расчёте I и округляет его. Это делается для того, чтобы скорость передачи была более стабильной
+    //Формула для I показана в коде. Но вот ещё-раз: ТАКТ / ЧИСТУЮ_СКОРОСТЬ * 16
+    uint32_t _BRDDIVF = (uint32_t)(((((_tact % (_BRR * 16)) * 64) + 32) / 64) & 0x3F); //Расчёт FBRD
+    uint32_t _BRDDIVI = (uint32_t)(_tact / (_BRR * 16)); //Расёт IBRD
 
-    struct BRR_UART _BRR_local = {.IBRD = _BRDDIVI, .FBRD = (_BRDDIVF * 64 + (8 * _BRR) / (16 * _BRR)) & 0x3F};
+    struct BRR_UART _BRR_local = {.IBRD = _BRDDIVI, .FBRD = _BRDDIVF};
     return _BRR_local;
+}
+
+int length(char _buffer[]){
+    int _length = 0;
+    while(_buffer[_length] != '\0'){
+        _length++;
+    }
+
+    return _length;
+}
+
+void Tx_clear(){
+    Tx_buffer.tail = 0;
+    for(; Tx_buffer.tail < Tx_buffer.head; Tx_buffer.tail++){
+        Tx_buffer.buffer[Tx_buffer.tail] = '\0';
+    }
+    Tx_buffer.head = 0;
 }
