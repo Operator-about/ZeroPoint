@@ -8,7 +8,8 @@ set(SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/C-source/Interrput/Interrput.c
     ${CMAKE_CURRENT_SOURCE_DIR}/C-source/Interrput/Interrput-common.c
     ${CMAKE_CURRENT_SOURCE_DIR}/Kernel.c
     ${CMAKE_CURRENT_SOURCE_DIR}/ASM/startup.asm
-    ${CMAKE_CURRENT_SOURCE_DIR}/ASM/table-vector.asm)
+    ${CMAKE_CURRENT_SOURCE_DIR}/ASM/table-vector.asm
+    ${CMAKE_CURRENT_SOURCE_DIR}/ASM/kernel-modules.asm)
 
 add_executable(${PROJECT_NAME}.elf ${SOURCES})
 

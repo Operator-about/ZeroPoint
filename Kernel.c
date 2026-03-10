@@ -1,4 +1,5 @@
 #include"Headers/Interrput.h"
+#include"Headers/Kernel-modules.h"
 
 //0 - QEMU
 //1 - Qcom
@@ -9,10 +10,13 @@ volatile struct UART UART;
 volatile struct GIC GIC;
 volatile struct GIC_registers_data GIC_Registers;
 
-
 int main(void){
+    write("Hello world from Zero Point! And Hello all! Welcom!");
+}
+
+int main_EL3(void){
 #if CPU == 0
-    GIC_common_configure(&GIC_Registers);
+    GIC_common_configure(&GIC_Registers, &GIC);
 
     check_UART_avaible_common(&UART);
 
@@ -28,10 +32,14 @@ int main(void){
 #else
     #error "Error"          
 #endif
-
-    write("Hello world from Zero Point! And Hello all! Welcom!");
-
-    while(1){
-        
-    }
+    EL3_to_EL1();
 }
+
+int main_EL1(void){
+    zero_PSTATE();
+
+    GICD_common_configure_EL1(&GIC);
+    main();
+}
+
+

@@ -14,6 +14,7 @@ void write(char _buffer[]){
 
     
     *UART.UART_DR = (volatile uint32_t)Tx_buffer.buffer[0];
+    *UART.UART_IMSC |= (1 << 5);
 }
 char* read(){
     Rx_buffer.tail = 0;
@@ -38,7 +39,7 @@ void send(){
 
     if(Tx_buffer.tail == Tx_buffer.head){
         Tx_clear();
-        *UART.UART_ICR = 1;
+        *UART.UART_ICR |= (1ULL << 5);
     }
 }
 
