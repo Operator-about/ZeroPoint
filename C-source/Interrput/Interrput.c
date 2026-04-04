@@ -6,15 +6,14 @@ struct UART_buffer Rx_buffer;
 void write(char _buffer[]){
 
     Tx_buffer.head = length(_buffer); //Указание длинны сообщения
-    Tx_buffer.tail = 1;
+    Tx_buffer.tail = 0;
     
     for(int _buffer_index = 0; _buffer_index < length(_buffer); _buffer_index++){
         Tx_buffer.buffer[_buffer_index] = _buffer[_buffer_index];
     }
 
+    UART->UART_DR = Tx_buffer.buffer[0];
     
-    *UART.UART_DR = (volatile uint32_t)Tx_buffer.buffer[0];
-    *UART.UART_IMSC |= (1 << 5);
 }
 char* read(){
     Rx_buffer.tail = 0;
@@ -31,45 +30,22 @@ char* read(){
 void send(){
     //Передача в FIFO
     //5 - FIFO FULL
-    
-    while((*UART.UART_FR & (1 << 5)) == 0 && Tx_buffer.tail < Tx_buffer.head){
-        *UART.UART_DR = (volatile uint32_t)Tx_buffer.buffer[Tx_buffer.tail];
-        Tx_buffer.tail++;
-    }
-
-    if(Tx_buffer.tail == Tx_buffer.head){
-        Tx_clear();
-        *UART.UART_ICR |= (1ULL << 5);
-    }
 }
 
 void receving(){
     //! - так как идёт проверка: FIFO НЕ РАВНО = ЧТО ОНО ЗАПОЛНЕНО !(т.е. 1 << 4 FIFO НЕ РАВНО 0). А побитовое & всегда даст 0
     //4 - FIFO EMPETY
     //6 - FIFO FULL
-    int _valid = 1;
-    if((*UART.UART_FR & (1 << 6)) == 0 && _valid == 1){
-        
-        
-    }   
+ 
 }
 
 void GIC_interrput(){
     *(volatile uint32_t*)0x09000000 = 'F'; 
     volatile uint32_t _IAR_ID;
-    volatile volatile struct UART* _UART = &UART;
+    //volatile volatile struct UART* _UART = &UART;
     __asm__("MRS %0, ICC_IAR1_EL1" : "=r"(_IAR_ID));
 
-    if(_IAR_ID == _UART->interrput){
-        if(*_UART->UART_MIS & (1 << 5)){
-            *(volatile uint32_t*)0x09000000 = '3'; 
-            send();
-        }
-        if(*_UART->UART_MIS & (1 << 4)){
-            *(volatile uint32_t*)0x09000000 = '2'; 
-            receving();
-        }
-    }
+    
     __asm__("MSR ICC_EOIR1_EL1, %0" : : "r"(_IAR_ID));
 }
 
@@ -100,5 +76,6 @@ void Tx_clear(){
     for(; Tx_buffer.tail < Tx_buffer.head; Tx_buffer.tail++){
         Tx_buffer.buffer[Tx_buffer.tail] = '\0';
     }
+    Tx_buffer.tail = 0;
     Tx_buffer.head = 0;
 }

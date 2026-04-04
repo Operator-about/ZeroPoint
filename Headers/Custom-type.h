@@ -1,5 +1,6 @@
 #pragma once
 #define SIZE 4096
+#define GICRS 1
 
 #include<stdint.h>
 #include<string.h>
@@ -10,8 +11,6 @@ struct BRR_UART{
     uint32_t FBRD; 
 };
 
-
-
 struct GIC_registers_data{
     volatile uint64_t PMR; //Порог для прерывания
     volatile uint64_t SRE; //Доступность GICv3 в регистрах
@@ -21,53 +20,65 @@ struct GIC_registers_data{
 };
 
 struct GICR{
-    volatile uint32_t* GICR; //Сам GICR
-    volatile uint32_t* GICR_WAKER; //Регистр для пробуждения GICR
-    volatile uint32_t* GICR_CTLR; //Настройка GICR
+    volatile uint32_t GICR_CTLR;
+    uint32_t RESERVE_1[16];
+    volatile uint32_t GICR_WAKER;
 };
 
-struct GIC{
+
+struct GICD{
+    /*
+        RESERVE_* - нужны для резервации место до друго-го регистра в структуре
+    */
+    volatile uint32_t GICD_CTLR;
+    uint32_t RESERVE_1[124];
+    volatile uint32_t GICD_IGROUPR[4];
     //4 элемента -> так как это кол-во 32-битных регистров, где 32 прерывания. Т.е. в каждом 32 битном по 32 прерывания
     //Формула: ID / 32 - для одного прерывания. Для размера массива, формула: Всего-прерываний / 32
     //Где 32 - это кол-во прерываний на один 32-битный регистр
-    volatile uint32_t* GICD_ISENABLER[4]; //Выставление доступных прерываний
-    //128 элемента -> так как это для всех прерываний, а общее кол-во прерываний на данный момент 128
-    //Формула: ID * 8 - для одного прерывания. Для размера массива, формула: -
-    volatile uint64_t* GICD_IROUTER[128]; //Указание ядров для прерываний
+    volatile uint32_t GICD_ISENABLER[4]; //Выставление доступных прерываний
+    uint32_t RESERVE_2[128];
+    volatile uint32_t GICD_ISPENDER[4];
+    uint32_t RESERVE_3[384];
     //32 элемента -> так как в одном 32 битном регистре 4 ячейке по 1 байту(т.е. по 8 бит каждая). Это вычесляется так: 
     //Формула: ID / 4 - для одного прерывания. Для размера массива, формула: Всего-прерываний / 4
     //Где 4 - это кол-во прерываний в размер по 8 бит каждый, в одном 32-битном регистре
-    volatile uint32_t* GICD_IPRIORITY[32]; //Приоритет конкретному прерыванию
-    //4 элемента -> так-же как и в ISENABLER
-    //Формула: ID / 32 - для одного прерывания. Для размера массива, формула: Всего-прерываний / 32
-    //Где 32 - это кол-во прерываний на один 32-битный регистр
-    volatile uint32_t* GICD_IGROUPR[4]; //Указание каждому прерыванию, в какой групе он находится
+    volatile uint32_t GICD_IPRIORITYR[32]; //Приоритет конкретному прерыванию
+    uint32_t RESERVE_4[257];
     //8 -> т.к. в данном случаи в один 32-битный регистр помещается по 16 ячеек с настройками для регистров(2 бита на каждую ячейку). 
     //Т.е. помещается 16 настроек, для 16 прерываний
     //Формула: ID / 16. - для одного прерывания. Для размера массива, формула: Всего-прерываний / 16
     //Где 16 - это кол-во прерываний в размер по 2 бита в 32-битном регистре
-    volatile uint32_t* GICD_ICFGR[8]; //Указание, как GIC будет реагировать на прерывания. Либо по level(долгому сигналу) или по edge(короткому одному сигналу)
+    volatile uint32_t GICD_ICFGR[8]; //Указание, как GIC будет реагировать на прерывания. Либо по level(долгому сигналу) или по edge(короткому одному сигналу)
+    uint32_t RESERVE_5[31];
     //Формула: ID / 32 - для одного прерывания. Для размера массива, формула: Всего-прерываний / 32
     //Где 32 - это кол-во прерываний на один 32-битный регистр 
-    volatile uint32_t* GICD_IGRPMODR[4]; //Регистр для указания под-ругппы прерываний
-    volatile struct GICR GICRS[1]; //Модули GICR
-    volatile uint32_t* GICD_CTLR; //Настройка GICR
+    volatile uint32_t GICD_IGRPMODR[4]; //Регистр для указания под-ругппы прерываний
+    uint32_t RESERVE_6[5344];
+    //128 элемента -> так как это для всех прерываний, а общее кол-во прерываний на данный момент 128
+    //Формула: ID * 8 - для одного прерывания. Для размера массива, формула: -
+    volatile uint64_t GICD_IROUTER[128]; //Указание ядров для прерываний
 };
 
-
+struct GIC{
+    struct GICD* GICD;
+    struct GICR* GICR[GICRS];
+};
 
 struct UART{
-    volatile uint32_t* UART; //Регистер UART
-    volatile uint32_t* UART_LCR_H; //Регистр настройки передачи
-    volatile uint32_t* UART_DR; //Регистр Rx, Tx линий 
-    volatile uint32_t* UART_CR; //Регистр конфигурации
-    volatile uint32_t* UART_FR; //Регистр состояния UART
-    volatile uint32_t* UART_IBRD; //Коэффициент замедления скорости(int)
-    volatile uint32_t* UART_FBRD; //Коэффициент замедление скорости(float)
-    volatile uint32_t* UART_MIS; //Хранит, какое имено прерывание из 33 ID(Tx или Rx)
-    volatile uint32_t* UART_ICR; //Обнуление прерывания
-    volatile uint32_t* UART_IFLS; //Параметр срабатывания FIFO
-    volatile uint32_t* UART_IMSC; //Разрешает определённые прерывания
+    volatile uint32_t UART_DR;
+    uint32_t RESERVE_1[20];
+    volatile uint32_t UART_FR;
+    uint32_t RESERVE_2[8];
+    volatile uint32_t UART_IBRD;
+    volatile uint32_t UART_FBRD;
+    volatile uint32_t UART_LCR_H;
+    volatile uint32_t UART_CR;
+    volatile uint32_t UART_IFLS;
+    volatile uint32_t UART_IMSC;
+    volatile uint32_t UART_RIS;
+    volatile uint32_t UART_MIS;
+    volatile uint32_t UART_ICR;
     int interrput;
 };
 

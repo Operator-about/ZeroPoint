@@ -1,4 +1,4 @@
-ENTRY(_start)
+ENTRY(start)
 
 MEMORY{
     RAM(rwx) : ORIGIN = 0x41000000, LENGTH = 128M
@@ -39,7 +39,7 @@ SECTIONS{
 
     . = ALIGN(16);
     .stack (NOLOAD) : {
-        . += 0x10000;
+        . = . + 0x1000;
         _stack_top = .;
     } > RAM
 
