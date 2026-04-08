@@ -13,5 +13,5 @@ void debugf(char _info[]){
     for(; Debug_buffer.tail < Debug_buffer.head; Debug_buffer.tail++){
         *(volatile uint32_t*)0x09000000 = Debug_buffer.buffer[Debug_buffer.tail];
     }
-    *(volatile uint32_t*)0x09000000 = '\n';
+    //*(volatile uint32_t*)0x09000000 = '\r\n';
 }

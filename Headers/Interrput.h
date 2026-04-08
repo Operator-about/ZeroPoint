@@ -26,9 +26,9 @@ void send();
 void receving();
 
 void GIC_interrput();
-void GIC_common_configure(volatile struct GIC_registers_data* _Registers_data, struct GIC _GIC);
-void GICD_common_configure_EL3(struct GIC_registers_data* _registers_data, struct GIC _GIC);
-void GICD_common_configure_EL1(struct GIC _GIC);
+void GIC_common_configure(struct GIC_registers_data* _Registers_data);
+void GICD_common_configure_EL3(struct GIC_registers_data* _registers_data);
+void GICD_common_configure_EL1();
 
 int length(char _buffer[]);
 void Tx_clear();

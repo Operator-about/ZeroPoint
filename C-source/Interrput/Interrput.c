@@ -12,8 +12,8 @@ void write(char _buffer[]){
         Tx_buffer.buffer[_buffer_index] = _buffer[_buffer_index];
     }
 
-    UART->UART_DR = Tx_buffer.buffer[0];
-    
+    volatile uint32_t* UART_DR = (volatile uint32_t*)0x09000000;
+    *UART_DR = Tx_buffer.buffer[Tx_buffer.tail];
 }
 char* read(){
     Rx_buffer.tail = 0;
@@ -40,7 +40,7 @@ void receving(){
 }
 
 void GIC_interrput(){
-    *(volatile uint32_t*)0x09000000 = 'F'; 
+    *(volatile uint32_t*)0x09000000 = 'R'; 
     volatile uint32_t _IAR_ID;
     //volatile volatile struct UART* _UART = &UART;
     __asm__("MRS %0, ICC_IAR1_EL1" : "=r"(_IAR_ID));

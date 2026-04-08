@@ -1,6 +1,21 @@
 .global EL3_to_EL1
 .global main_EL1
 .global zero_PSTATE
+.global EL3_preparing_for_interrput
+.global main
+
+EL3_preparing_for_interrput:
+    MRS X0, SCR_EL3
+    AND X0, X0, #~(1ULL << 0) //Выключение NS, на всякий случай
+    ORR X0, X0, #(1ULL << 1) //Установка IRQ бита для EL3, чтобы все прерывание проходили через EL3
+    ORR X0, X0, #(1ULL << 10) //Указание 64-битного режима работы
+    MSR SCR_EL3, X0
+
+    MRS X0, DAIF
+    ORR X0, X0, #~(1ULL << 7)
+    MSR DAIF, X0
+
+    RET
 
 EL3_to_EL1:
     /*
@@ -45,19 +60,20 @@ EL3_to_EL1:
     LDR X0, =EL1h_SP_reserve_top //Указания стека
     MSR SP_EL1, X0 //Запись стека SP для EL1h режима
 
+    ADR X0, vector_table_center
+    MSR VBAR_EL1, X0
+
     ERET //Исключение
 
 EL1h_configure_finish:
-    BL zero_PSTATE
+    //BL zero_PSTATE
 
     //Настройка таблицы векторов
-    ADR X0, vector_table //Сохранения адреса
+    ADR X0, vector_table_center //Сохранения адреса
     MSR VBAR_EL1, X0 //Запись адреса для таблицы векторов
 
-    //BL MMU_preparing_for_EL1h
-
-    BL main_EL1
-    RET
+    //BL main_EL1
+    //RET
 
 zero_PSTATE:
     MSR DAIF, X0 //Обнуление PSTATE

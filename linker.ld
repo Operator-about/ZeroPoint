@@ -12,7 +12,7 @@ SECTIONS{
     .text : {
         KEEP(*(.text.boot))
         *(.text .text.*)
-    }
+    } > RAM
 
     . = ALIGN(2048);
     .vectors : {
