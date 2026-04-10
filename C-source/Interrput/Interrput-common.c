@@ -62,7 +62,7 @@ void GIC_common_configure(struct GIC_registers_data* _Registers_data){
     */
 
     GIC.GICD = (struct GICD*)0x08000000;
-    //GIC.GICR[0] = (struct GICR*)0x080A0000;
+    GIC.GICR[0] = (struct GICR*)0x080A0000;
     GICD_common_configure_EL3(_Registers_data);
 }
 
@@ -76,10 +76,10 @@ void GICD_common_configure_EL3(struct GIC_registers_data* _registers_data){
     (_registers_data->AFF[3] << 32);
     GIC.GICD->GICD_IROUTER[33] &= ~(1ULL << 31); //Указание того, что прерывания пойдёт только на конкретное ядро, указанное ранее
 
-    // GIC.GICR[0]->GICR_WAKER &= (1ULL << 1);
-    // while(GIC.GICR[0]->GICR_WAKER & (1ULL << 2)){
-    //     debugf("Children check...");
-    // }
+    GIC.GICR[0]->GICR_WAKER &= ~(1ULL << 1);
+    while(GIC.GICR[0]->GICR_WAKER & ~(1ULL << 2)){
+        debugf("Children check...");
+    }
 
     GIC.GICD->GICD_IPRIORITYR[33 / 4] |= (1ULL << (33 % 4 * 8)); //Указание приоритета для прерывания
     GIC.GICD->GICD_ISENABLER[33 / 32] |= (1ULL << (33 % 32)); //Разрешения прерывания
@@ -100,20 +100,15 @@ void GICD_common_configure_EL1(){
 
 void UART_common_configure(volatile struct UART* _UART){
     
-    volatile uint32_t* UART_DR = (volatile uint32_t*)0x09000000;
-    volatile uint32_t* UART_CR = (volatile uint32_t*)(0x09000000 + 0x030);
-    volatile uint32_t* UART_LCR_H = (volatile uint32_t*)(0x09000000 + 0x02C);
-    volatile uint32_t* UART_IBRD = (volatile uint32_t*)(0x09000000 + 0x024);
-    volatile uint32_t* UART_FBRD = (volatile uint32_t*)(0x09000000 + 0x028);
-    volatile uint32_t* UART_IMSC = (volatile uint32_t*)(0x09000000 + 0x038);
+    UART = (struct UART*)0x09000000;
     struct BRR_UART _BRR = calculate_BRR(9600, 480000000);
 
-    *UART_IBRD = _BRR.IBRD;
-    *UART_FBRD = _BRR.FBRD;
-    *UART_LCR_H &= ~(1ULL << 4);
-    *UART_IMSC |= (1ULL << 5);
-    *UART_CR |= (1ULL << 8);
-    *UART_CR |= (1ULL << 0);
+    UART->UART_IBRD = _BRR.IBRD;
+    UART->UART_FBRD = _BRR.FBRD;
+    UART->UART_LCR_H &= ~(1ULL << 4);
+    UART->UART_IMSC |= (1ULL << 5);
+    UART->UART_CR |= (1ULL << 8) | (1ULL << 9) | (1ULL << 0);
+
 #if DEBUG == 1
     //debugf("UART configure done!");
 #endif

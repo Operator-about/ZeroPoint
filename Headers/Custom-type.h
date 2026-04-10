@@ -69,9 +69,9 @@ struct GIC{
 
 struct UART{
     volatile uint32_t UART_DR;
-    uint32_t RESERVE_1[20];
+    uint32_t RESERVE_1[5];
     volatile uint32_t UART_FR;
-    uint32_t RESERVE_2[8];
+    uint32_t RESERVE_2[2];
     volatile uint32_t UART_IBRD;
     volatile uint32_t UART_FBRD;
     volatile uint32_t UART_LCR_H;

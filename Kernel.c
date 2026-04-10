@@ -12,7 +12,6 @@ volatile struct GIC GIC;
 volatile struct GIC_registers_data GIC_Registers;
 
 int main(void){
-    //write("Hello world from Zero Point! And Hello all! Welcom!");
     //debugf("Hello world!");
 }
 
@@ -42,8 +41,12 @@ int main_EL3(void){
     }
     UART_common_configure(UART);  
 #if DEBUG == 1
-    debugf("This EL3 level status - okay!");
+    //debugf("This EL3 level status - okay!");
 #endif
+    //__asm__ volatile("MOV PC, X0");
+    write("Hello world!");
+    //debugf("This EL3 level status - okay!");
+
     EL3_to_EL1();
 }
 
@@ -51,7 +54,7 @@ int main_EL1(void){
     //zero_PSTATE();
     //GICD_common_configure_EL1(GIC);
 
-    //main();
+    main();
 }
 
 

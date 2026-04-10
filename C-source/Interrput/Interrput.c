@@ -6,14 +6,13 @@ struct UART_buffer Rx_buffer;
 void write(char _buffer[]){
 
     Tx_buffer.head = length(_buffer); //Указание длинны сообщения
-    Tx_buffer.tail = 0;
+    Tx_buffer.tail = 1;
     
     for(int _buffer_index = 0; _buffer_index < length(_buffer); _buffer_index++){
         Tx_buffer.buffer[_buffer_index] = _buffer[_buffer_index];
     }
 
-    volatile uint32_t* UART_DR = (volatile uint32_t*)0x09000000;
-    *UART_DR = Tx_buffer.buffer[Tx_buffer.tail];
+    UART->UART_DR = Tx_buffer.buffer[0];
 }
 char* read(){
     Rx_buffer.tail = 0;
@@ -28,8 +27,7 @@ char* read(){
 }
 
 void send(){
-    //Передача в FIFO
-    //5 - FIFO FULL
+    UART->UART_ICR = UART->UART_MIS;
 }
 
 void receving(){
@@ -40,13 +38,17 @@ void receving(){
 }
 
 void GIC_interrput(){
-    *(volatile uint32_t*)0x09000000 = 'R'; 
-    volatile uint32_t _IAR_ID;
-    //volatile volatile struct UART* _UART = &UART;
+    volatile uint64_t _IAR_ID;
     __asm__("MRS %0, ICC_IAR1_EL1" : "=r"(_IAR_ID));
-
+    if(_IAR_ID == UART->interrput){
+        if(UART->UART_MIS & (1ULL << 5)){
+            send();
+        }
+    }
+    else if(_IAR_ID == 1023){
+        __asm__("MSR ICC_EOIR1_EL1, %0" : : "r"(_IAR_ID));
+    }
     
-    __asm__("MSR ICC_EOIR1_EL1, %0" : : "r"(_IAR_ID));
 }
 
 struct BRR_UART calculate_BRR(int _BRR, int _tact){

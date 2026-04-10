@@ -1,7 +1,6 @@
 .section .vectors, "ax", %progbits
 .global vector_table_center
 .global GIC_interrput 
-.global synchronous_elxh_handel
 
 .align 11
 vector_table_center:
@@ -19,22 +18,19 @@ vector_table_center:
     
     .align 7
     synchronous_elxh:
-        MOV X5, #1ULL
         ERET
     .align 7
     irq_handel_elxh:
+        STR X0, [SP], #8
+        STR X1, [SP], #8
+        STR X2, [SP], #8
+        STR X30, [SP], #8
+
         BL GIC_interrput
+
+        LDR X30, [SP], #8
+        LDR X2, [SP], #8
+        LDR X1, [SP], #8
+        LDR X0, [SP], #8
+
         ERET
-
-
-    
-    
-
-
-
-
-    
-
-
-
-
