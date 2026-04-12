@@ -15,22 +15,17 @@ vector_table_center:
     .align 7
     serror_elxt:
         ERET
-    
     .align 7
     synchronous_elxh:
         ERET
     .align 7
     irq_handel_elxh:
-        STR X0, [SP], #8
-        STR X1, [SP], #8
-        STR X2, [SP], #8
-        STR X30, [SP], #8
+        STP X0, X1, [SP, #-16]!
+        STP X2, X30, [SP, #-16]!
 
         BL GIC_interrput
 
-        LDR X30, [SP], #8
-        LDR X2, [SP], #8
-        LDR X1, [SP], #8
-        LDR X0, [SP], #8
+        LDP X2, X30, [SP], #16
+        LDP X0, X1, [SP], #16
 
         ERET

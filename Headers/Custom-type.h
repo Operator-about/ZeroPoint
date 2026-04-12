@@ -7,8 +7,9 @@
 #include<stdbool.h>
 
 struct BRR_UART{
-    uint32_t IBRD;
-    uint32_t FBRD; 
+    //Скорости UART
+    uint32_t IBRD; //Неточная скорость
+    uint32_t FBRD; //Более точная скорость
 };
 
 struct GIC_registers_data{
@@ -21,15 +22,21 @@ struct GIC_registers_data{
 };
 
 struct GICR{
-    volatile uint32_t GICR_CTLR;
-    uint32_t RESERVE_1[16];
-    volatile uint32_t GICR_WAKER;
+    volatile uint32_t GICR_CTLR; //Регистр настройки GICR
+    uint32_t RESERVE_1[4]; 
+    volatile uint32_t GICR_WAKER; //Регистр "буждения" ядра GICR и ожидание пробуждения основного ядра для выполнения прерывания
 };
 
 
 struct GICD{
     /*
         RESERVE_* - нужны для резервации место до друго-го регистра в структуре
+        Как высчитывать RESERVE:
+        Если используются не все 1023 прерывания, то надо сделать следующее:
+        К адресу регистра от которого нужно уступить, надо прибавить произведение: 4 * n - где 4 - размер одного 32-битного регистра,
+        а n - кол-во "коробок" в этом регистре используется.
+        Далее, нужно из адреса того регистра до которого нужно отступить вычисть адрес регистра от которого мы производим отступ
+        И после этого надо поделить ответ на 4 - чтобы узнать, сколько нужно ячеек в массиве, который состоит из 32-битных коробок
     */
     volatile uint32_t GICD_CTLR;
     uint32_t RESERVE_1[31];
@@ -68,20 +75,25 @@ struct GIC{
 };
 
 struct UART{
-    volatile uint32_t UART_DR;
-    uint32_t RESERVE_1[5];
-    volatile uint32_t UART_FR;
-    uint32_t RESERVE_2[2];
-    volatile uint32_t UART_IBRD;
-    volatile uint32_t UART_FBRD;
-    volatile uint32_t UART_LCR_H;
-    volatile uint32_t UART_CR;
-    volatile uint32_t UART_IFLS;
-    volatile uint32_t UART_IMSC;
-    volatile uint32_t UART_RIS;
-    volatile uint32_t UART_MIS;
-    volatile uint32_t UART_ICR;
-    int interrput;
+    /*
+        При вычеслении RESERVE используется дальнейшие действия:
+        Прибавление +4 к регистры от которого нужно высчитать отступ до следующего
+        Вычисть эту сумму от адреса регистра до которого нужно отступить
+        Затем поделить на 4
+    */
+    volatile uint32_t UART_DR; //Регистр отправки/получения
+    uint32_t RESERVE_1[5]; 
+    volatile uint32_t UART_FR; //Регистр статуса UART
+    uint32_t RESERVE_2[2]; 
+    volatile uint32_t UART_IBRD; //Регистр для хранения скорости
+    volatile uint32_t UART_FBRD; //Регистр для хранения скорости
+    volatile uint32_t UART_LCR_H; //Регистр для дополнительных настроек Rx/Tx линий
+    volatile uint32_t UART_CR; //Регистр для базовых настроек UART
+    volatile uint32_t UART_IFLS; //Регистр для настройки FIFO
+    volatile uint32_t UART_IMSC; //Регистр для включение прерываний в UART
+    volatile uint32_t UART_RIS; //Регистр для получение сырого статуса прерывания UART
+    volatile uint32_t UART_MIS; //Регистр для получение информации о том, какое прерывание сейчас в UART произошло
+    volatile uint32_t UART_ICR; //Регистр для сброса прерывания в UART
 };
 
 struct UART_buffer{

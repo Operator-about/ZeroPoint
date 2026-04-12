@@ -6,18 +6,18 @@
 
 start:
     
-    LDR X0, =EL3_SP_reserve_top
-    MOV SP, X0
+    LDR X0, =EL3_SP_reserve_top //Указание верхушки стека
+    MOV SP, X0 //Задавание стека
     //Настройка таблицы-векторов
-    ADR X0, vector_table_center
-    LSL X0, X0, #11
+    ADR X0, vector_table_center //Взятие адреса таблицы векторов
+    LSL X0, X0, #11 //Сдвиг адреса
     MSR VBAR_EL3, X0 //Загрузка таблицы векторов
-    //MSR VBAR_EL1, X0
     MOV X0, XZR
 
-    BL main_EL3
+    BL main_EL3 //Переход в код
 
 
+//Стек должен быть выравнен по 16 байт!
 .section .bss
 .align 15
 EL3_SP_reserve_bottom:

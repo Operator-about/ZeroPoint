@@ -4,51 +4,42 @@ struct UART_buffer Tx_buffer;
 struct UART_buffer Rx_buffer;
 
 void write(char _buffer[]){
-
+    Tx_clear();
     Tx_buffer.head = length(_buffer); //Указание длинны сообщения
-    Tx_buffer.tail = 1;
+    Tx_buffer.tail = 0;
     
     for(int _buffer_index = 0; _buffer_index < length(_buffer); _buffer_index++){
         Tx_buffer.buffer[_buffer_index] = _buffer[_buffer_index];
     }
-
-    UART->UART_DR = Tx_buffer.buffer[0];
+    UART->UART_DR = Tx_buffer.buffer[Tx_buffer.tail];
 }
 char* read(){
-    Rx_buffer.tail = 0;
-
-    char* _buffer = "";
-    while(Rx_buffer.tail < Rx_buffer.head){
-        // _buffer += Rx_buffer.buffer[Rx_buffer.tail];
-        // Rx_buffer.tail++;
-    }
-
-    return _buffer;
+    //Реализация скоро!
 }
 
 void send(){
-    UART->UART_ICR = UART->UART_MIS;
+    UART->UART_ICR = (1ULL << 5); //Сброс прерывания
+    if(Tx_buffer.tail < Tx_buffer.head && Tx_buffer.buffer[Tx_buffer.tail+1] != '\0'){
+        Tx_buffer.tail++;
+        UART->UART_DR = Tx_buffer.buffer[Tx_buffer.tail]; //Запись значения
+    }
 }
 
 void receving(){
-    //! - так как идёт проверка: FIFO НЕ РАВНО = ЧТО ОНО ЗАПОЛНЕНО !(т.е. 1 << 4 FIFO НЕ РАВНО 0). А побитовое & всегда даст 0
-    //4 - FIFO EMPETY
-    //6 - FIFO FULL
- 
+    //Реализация скоро!
 }
 
 void GIC_interrput(){
     volatile uint64_t _IAR_ID;
     __asm__("MRS %0, ICC_IAR1_EL1" : "=r"(_IAR_ID));
-    if(_IAR_ID == UART->interrput){
+    if(_IAR_ID == 33){
         if(UART->UART_MIS & (1ULL << 5)){
             send();
         }
     }
-    else if(_IAR_ID == 1023){
-        __asm__("MSR ICC_EOIR1_EL1, %0" : : "r"(_IAR_ID));
-    }
-    
+    //DIR используется из-за включённого в CTLR бита EOImode1NS
+    __asm__("MSR ICC_EOIR1_EL1, %0" : : "r"(_IAR_ID)); //Завершение прерывание
+    __asm__("MSR ICC_DIR_EL1, %0" : : "r"(_IAR_ID)); //Сброс прерывания
 }
 
 struct BRR_UART calculate_BRR(int _BRR, int _tact){
