@@ -17,7 +17,7 @@ struct UART check_UART_avaible_md();
 
 //Заглушки
 void write(char _buffer[]);
-char* read();
+void read(char _buffer[]);
 
 struct BRR_UART calculate_BRR(int _BRR, int _tack);
 
@@ -32,6 +32,7 @@ void GICD_common_configure_EL1(struct GIC_registers_data* _registers_data);
 
 int length(char _buffer[]);
 void Tx_clear();
+void Rx_clear();
 
 void UART_common_configure();
 void UART_md_configure();

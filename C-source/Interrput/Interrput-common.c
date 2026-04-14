@@ -84,7 +84,7 @@ void UART_common_configure(){
     UART->UART_IBRD = _BRR.IBRD; //Настройка скорости
     UART->UART_FBRD = _BRR.FBRD; //Настройка скорости
     UART->UART_LCR_H &= ~(1ULL << 4); //Отключение FIFO
-    UART->UART_IMSC |= (1ULL << 5); //Включение прерывания на Tx линию
-    UART->UART_CR |= (1ULL << 8); //Включение Tx линии
+    UART->UART_IMSC |= (1ULL << 5) | (1ULL << 4); //Включение прерывания на Tx линию
+    UART->UART_CR |= (1ULL << 8) | (1ULL << 9); //Включение Tx и Rx линий
     UART->UART_CR |= (1ULL << 0); //Включение UART модуля
 }

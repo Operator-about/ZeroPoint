@@ -13,7 +13,15 @@ struct GIC_registers_data GIC_Registers;
 
 int main(void){
     write("Welcome to ZeroPoint!");
-
+    while(1){
+        char a[100];
+        read(a);
+        if(a == "Hello"){
+            write("Hello");
+            __asm__("MOV X19, #40");
+            break;
+        }
+    }
     while(1){
         __asm__("NOP");
     }

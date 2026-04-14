@@ -13,8 +13,12 @@ void write(char _buffer[]){
     }
     UART->UART_DR = Tx_buffer.buffer[Tx_buffer.tail];
 }
-char* read(){
-    //Реализация скоро!
+void read(char _buffer[]){
+    if(Rx_buffer.tail < 4 && (Rx_buffer.buffer[Rx_buffer.tail+1] != ' ' || Rx_buffer.buffer[Rx_buffer.tail+1] != '\0')){
+        _buffer[Rx_buffer.tail] = Rx_buffer.buffer[Rx_buffer.tail];
+        Rx_buffer.tail++;
+    }
+    UART->UART_DR = Rx_buffer.buffer[5];
 }
 
 void send(){
@@ -26,7 +30,12 @@ void send(){
 }
 
 void receving(){
-    //Реализация скоро!
+    UART->UART_ICR = (1ULL << 4);
+    if(!(UART->UART_FR & (1ULL << 4)) && UART->UART_DR != '\0'){
+        __asm__("ADD X14, X14, #15");
+        Rx_buffer.buffer[Rx_buffer.head] = UART->UART_DR;
+        Rx_buffer.head++;
+    }
 }
 
 void GIC_interrput(){
@@ -35,6 +44,9 @@ void GIC_interrput(){
     if(_IAR_ID == 33){
         if(UART->UART_MIS & (1ULL << 5)){
             send();
+        }
+        else if(UART->UART_MIS & (1ULL << 4)){
+            receving();
         }
     }
     //DIR используется из-за включённого в CTLR бита EOImode1NS
@@ -71,4 +83,13 @@ void Tx_clear(){
     }
     Tx_buffer.tail = 0;
     Tx_buffer.head = 0;
+}
+
+void Rx_clear(){
+    Rx_buffer.tail = 0;
+    for(; Rx_buffer.tail < Rx_buffer.head; Rx_buffer.tail++){
+        Rx_buffer.buffer[Rx_buffer.tail] = '\0';
+    }
+    Rx_buffer.tail = 0;
+    Rx_buffer.head = 0;
 }
