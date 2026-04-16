@@ -17,6 +17,7 @@ vector_table_center:
         ERET
     .align 7
     synchronous_elxh:
+        MRS X15, ESR_EL1
         ERET
     .align 7
     irq_handel_elxh:

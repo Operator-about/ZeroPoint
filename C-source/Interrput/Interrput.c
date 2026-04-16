@@ -14,11 +14,15 @@ void write(char _buffer[]){
     UART->UART_DR = Tx_buffer.buffer[Tx_buffer.tail];
 }
 void read(char _buffer[]){
-    if(Rx_buffer.tail < 4 && (Rx_buffer.buffer[Rx_buffer.tail+1] != ' ' || Rx_buffer.buffer[Rx_buffer.tail+1] != '\0')){
-        _buffer[Rx_buffer.tail] = Rx_buffer.buffer[Rx_buffer.tail];
-        Rx_buffer.tail++;
+    while(1){
+        if(Rx_buffer.buffer[0] != '\0'){
+            for(int _buffer_index = 0; _buffer_index < 5; _buffer_index++){
+                __asm__("MOV X16, %0" : : "r"(Rx_buffer.head));
+                _buffer[_buffer_index] = Rx_buffer.buffer[_buffer_index];
+            }
+            break;
+        }
     }
-    UART->UART_DR = Rx_buffer.buffer[5];
 }
 
 void send(){
@@ -31,10 +35,10 @@ void send(){
 
 void receving(){
     UART->UART_ICR = (1ULL << 4);
-    if(!(UART->UART_FR & (1ULL << 4)) && UART->UART_DR != '\0'){
-        __asm__("ADD X14, X14, #15");
-        Rx_buffer.buffer[Rx_buffer.head] = UART->UART_DR;
-        Rx_buffer.head++;
+    if(UART->UART_DR != '\r' && UART->UART_DR != '\n'){
+        __asm__("ADD X14, X14, #1");
+        Rx_buffer.head++; 
+        Rx_buffer.buffer[Rx_buffer.head] = UART->UART_DR; 
     }
 }
 
@@ -91,5 +95,5 @@ void Rx_clear(){
         Rx_buffer.buffer[Rx_buffer.tail] = '\0';
     }
     Rx_buffer.tail = 0;
-    Rx_buffer.head = 0;
+    Rx_buffer.head = -1;
 }

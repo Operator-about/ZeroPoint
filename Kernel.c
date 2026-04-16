@@ -13,15 +13,8 @@ struct GIC_registers_data GIC_Registers;
 
 int main(void){
     write("Welcome to ZeroPoint!");
-    while(1){
-        char a[100];
-        read(a);
-        if(a == "Hello"){
-            write("Hello");
-            __asm__("MOV X19, #40");
-            break;
-        }
-    }
+    char _keyboard_buffer_input[100];
+    read(_keyboard_buffer_input);
     while(1){
         __asm__("NOP");
     }
@@ -29,6 +22,7 @@ int main(void){
 
 int main_EL3(void){
 #if CPU == 0
+    //Rx_clear();
     GIC_common_configure_registers(&GIC_Registers); //Настройка регистров GIC
     GIC.GICD = (struct GICD*)0x08000000; //Указание начало GICD
     GIC.GICR[0] = (struct GICR*)0x080A0000; //Указание начало GICR
@@ -47,6 +41,13 @@ int main_EL3(void){
 
 int main_EL1(void){
     main();
+}
+
+void clear_buffer(char _buffer[]){
+    int _length = length(_buffer);
+    for(int _clear_index; _clear_index < _length; _clear_index++){
+        _buffer[_clear_index] = '\0';
+    }
 }
 
 

@@ -36,7 +36,7 @@ EL3_to_EL1:
     MSR ELR_EL3, X0
     ISB
 
-    LDR X0, =EL1h_SP_reserve_top //Указания стека
+    LDR X0, =EL1h_SP_top //Указания стека
     MSR SP_EL1, X0 //Запись стека SP для EL1h режима
 
     ADR X0, vector_table_center
@@ -45,10 +45,6 @@ EL3_to_EL1:
     ERET //Исключение
 
 EL1h_configure_finish:
-    //BL MMU_preparing_for_EL1h
-    
-    //Настройка таблицы векторов
-    ADR X0, vector_table_center //Сохранения адреса
-    MSR VBAR_EL1, X0 //Запись адреса для таблицы векторов
+    BL MMU_preparing_for_EL1h
 
     BL main_EL1

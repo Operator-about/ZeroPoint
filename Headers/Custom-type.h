@@ -97,7 +97,7 @@ struct UART{
 };
 
 struct UART_buffer{
-    uint8_t buffer[SIZE]; //Буфер
-    int head; //Размер буфера
-    int tail; //Текущая позиция
+    volatile uint8_t buffer[SIZE]; //Буфер
+    volatile int head; //Размер буфера
+    volatile int tail; //Текущая позиция
 };

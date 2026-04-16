@@ -1,7 +1,7 @@
 ENTRY(start)
 
 MEMORY{
-    RAM(rwx) : ORIGIN = 0x41000000, LENGTH = 128M
+    RAM(rwx) : ORIGIN = 0x41000000, LENGTH = 4096M
 }
 
 

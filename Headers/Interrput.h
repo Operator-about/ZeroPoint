@@ -33,6 +33,7 @@ void GICD_common_configure_EL1(struct GIC_registers_data* _registers_data);
 int length(char _buffer[]);
 void Tx_clear();
 void Rx_clear();
+void check_end_in_text_from_rx();
 
 void UART_common_configure();
 void UART_md_configure();
