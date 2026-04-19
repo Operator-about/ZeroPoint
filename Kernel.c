@@ -1,6 +1,7 @@
 #include"Headers/Interrput.h"
 #include"Headers/Kernel-modules.h"
 #include"Headers/Ella.h"
+#include"Headers/MMU.h"
 
 //0 - QEMU
 //1 - Qcom
@@ -14,7 +15,6 @@ struct GIC_registers_data GIC_Registers;
 int main(void){
     write("Welcome to ZeroPoint!");
     char _keyboard_buffer_input[100];
-    read(_keyboard_buffer_input);
     while(1){
         __asm__("NOP");
     }
@@ -40,6 +40,7 @@ int main_EL3(void){
 }
 
 int main_EL1(void){
+    MMU_init();
     main();
 }
 

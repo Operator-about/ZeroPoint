@@ -1,4 +1,5 @@
 .global EL3_to_EL1
+.global MMU_active
 .global main_EL1
 .global zero_PSTATE
 .global main
@@ -45,6 +46,10 @@ EL3_to_EL1:
     ERET //Исключение
 
 EL1h_configure_finish:
-    BL MMU_preparing_for_EL1h
-
     BL main_EL1
+    RET
+MMU_active:
+    MRS X0, SCTLR_EL1
+    ORR X0, X0, #(1ULL << 0)
+    AND X0, X0, #~(1ULL << 2)
+    MSR SCTLR_EL1, X0

@@ -101,3 +101,10 @@ struct UART_buffer{
     volatile int head; //Размер буфера
     volatile int tail; //Текущая позиция
 };
+
+struct MMU_registers{
+    volatile uint64_t MAIR;
+    volatile uint64_t TTBR0;
+    volatile uint64_t TCR;
+    volatile uint64_t SCTLR;
+};
