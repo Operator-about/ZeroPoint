@@ -3,6 +3,7 @@
 .global main_EL1
 .global zero_PSTATE
 .global main
+.global VBAR_set
 
 EL3_to_EL1:
     /*
@@ -53,3 +54,12 @@ MMU_active:
     ORR X0, X0, #(1ULL << 0)
     AND X0, X0, #~(1ULL << 2)
     MSR SCTLR_EL1, X0
+
+    ISB
+    RET
+VBAR_set:
+    ADR X0, vector_table_center;
+    MSR VBAR_EL1, X0
+    
+    ISB
+    RET

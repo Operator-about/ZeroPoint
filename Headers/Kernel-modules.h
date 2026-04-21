@@ -5,4 +5,5 @@
 extern long EL3_to_EL1();
 extern long zero_PSTATE();
 extern long MMU_active();
+extern long VBAR_set();
 void clear_buffer(char _buffer[]);

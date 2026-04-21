@@ -41,6 +41,7 @@ int main_EL3(void){
 
 int main_EL1(void){
     MMU_init();
+    VBAR_set();
     main();
 }
 

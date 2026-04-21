@@ -9,4 +9,4 @@ void MMU_init();
 void L0_table_descriptor_init();
 void L1_block_descriptor_NORMAL_init(int _index);
 void L1_block_descriptor_DEVICE_init(int _index);
-void L1_table_descriptor_init();
+void L1_table_descriptor_init(int _index);
