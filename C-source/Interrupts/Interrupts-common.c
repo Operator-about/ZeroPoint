@@ -1,4 +1,4 @@
-#include<Interrput.h>
+#include<Interrupts.h>
 #include<Kernel-modules.h>
 
 void GIC_common_configure_registers(struct GIC_registers_data* _registers_data){
@@ -83,8 +83,10 @@ void UART_common_configure(){
 
     UART->UART_IBRD = _BRR.IBRD; //Настройка скорости
     UART->UART_FBRD = _BRR.FBRD; //Настройка скорости
-    UART->UART_LCR_H &= ~(1ULL << 4); //Отключение FIFO
-    UART->UART_IMSC |= (1ULL << 5); //Включение прерывания на Tx линию
-    UART->UART_CR |= (1ULL << 8); //Включение Tx линии
+    UART->UART_LCR_H |= (1ULL << 4); //Включение FIFO
+    UART->UART_IFLS &= ~(1ULL << 0); //FIFO для Tx линии. В данном случаи на 1/8
+    UART->UART_IFLS |= (2ULL << 3); //FIFO для Rx линии. В данном случаи на 1/2
+    UART->UART_IMSC |= (1ULL << 5) | (1ULL << 4); //Включение прерывания на Tx линию
+    UART->UART_CR |= (1ULL << 8) | (1ULL << 9); //Включение Tx и Rx линий
     UART->UART_CR |= (1ULL << 0); //Включение UART модуля
 }

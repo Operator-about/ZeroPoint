@@ -1,7 +1,9 @@
 .global EL3_to_EL1
+.global MMU_active
 .global main_EL1
 .global zero_PSTATE
 .global main
+.global VBAR_set
 
 EL3_to_EL1:
     /*
@@ -36,7 +38,7 @@ EL3_to_EL1:
     MSR ELR_EL3, X0
     ISB
 
-    LDR X0, =EL1h_SP_reserve_top //Указания стека
+    LDR X0, =EL1h_SP_top //Указания стека
     MSR SP_EL1, X0 //Запись стека SP для EL1h режима
 
     ADR X0, vector_table_center
@@ -45,8 +47,19 @@ EL3_to_EL1:
     ERET //Исключение
 
 EL1h_configure_finish:
-    //Настройка таблицы векторов
-    ADR X0, vector_table_center //Сохранения адреса
-    MSR VBAR_EL1, X0 //Запись адреса для таблицы векторов
-
     BL main_EL1
+    RET
+MMU_active:
+    MRS X0, SCTLR_EL1
+    ORR X0, X0, #(1ULL << 0) //Включение MMU
+    AND X0, X0, #~(1ULL << 2) //Выключение кэширования
+    MSR SCTLR_EL1, X0
+
+    ISB
+    RET
+VBAR_set:
+    ADR X0, vector_table_center
+    MSR VBAR_EL1, X0
+    
+    ISB
+    RET

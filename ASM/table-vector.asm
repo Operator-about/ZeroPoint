@@ -1,6 +1,6 @@
 .section .vectors, "ax", %progbits
 .global vector_table_center
-.global GIC_interrput 
+.global GIC_interrupts 
 
 .align 11
 vector_table_center:
@@ -23,7 +23,7 @@ vector_table_center:
         STP X0, X1, [SP, #-16]!
         STP X2, X30, [SP, #-16]!
 
-        BL GIC_interrput
+        BL GIC_interrupts
 
         LDP X2, X30, [SP], #16
         LDP X0, X1, [SP], #16
