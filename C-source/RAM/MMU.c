@@ -5,59 +5,59 @@ alignas(4096) uint64_t L1_table[512];
 uint64_t L1_index_address;
 
 void MMU_init(){
-    L1_index_address = (uint64_t)0x00000000;
+    L1_index_address = (uint64_t)0x00000000; //Указание нулевого адреса для правильного расчёта
     L0_table_descriptor_init();
     L1_block_descriptor_DEVICE_init(0);
     L1_block_descriptor_NORMAL_init(1);
     struct MMU_registers _registers;
-    uintptr_t _pointer_L0 = (uintptr_t)L0_table;
     
-    _registers.MAIR |= (4ULL << 0) | (68ULL << 8); 
-    _registers.TTBR0 |= ((uint64_t)_pointer_L0 << 0);
-    _registers.TCR |= (17ULL << 0) | (5ULL << 32);
-    _registers.TCR &= ~(3ULL << 14);
+    _registers.MAIR |= (4ULL << 0) | (68ULL << 8); //Указание nGnRE(0 индекс 0:7) и указание Normal N I/O(1 индекс 8:15)
+    _registers.TTBR0 |= ((uint64_t)L0_table << 0); //Указание того, что поиск в MMU будет начинаться с L0 таблицы
+    _registers.TCR |= (17ULL << 0) | (5ULL << 32); //Указание T0SZ и IPS. 
+    /*
+        T0SZ - указывает на то, с какой таблицы искать для VA - OA адрес.
+        В данном случаи 17 записано, т.к. для 48-бит при 4КБ грануле 64-14 = 47 - с данного бита начинается осмотр MMU с L0 таблице
+        IPS - указывает битность дескриптора для таблиц L 
+    */
+    _registers.TCR &= ~(3ULL << 14); //Указание, что используется гранула в 4КБ для страниц
 
     __asm__("MSR MAIR_EL1, %0" : : "r"(_registers.MAIR));
     __asm__("MSR TTBR0_EL1, %0" : : "r"(_registers.TTBR0));
     __asm__("MSR TCR_EL1, %0" : : "r"(_registers.TCR));
     __asm__("ISB");
 
-    __asm__("TLBI VMALLE1");
-    __asm__("DSB ISH");
-    __asm__("ISB");
     MMU_active();
 }
 
 void L1_block_descriptor_DEVICE_init(int _index){
-    L1_table[_index] = L1_index_address;
-    L1_table[_index] |= (1ULL << 0);
-    L1_table[_index] &= ~(1ULL << 1);
-    L1_table[_index] &= ~(1ULL << 2);
-    L1_table[_index] &= ~(1ULL << 6);
-    L1_table[_index] &= ~(1ULL << 7);
-    L1_table[_index] &= ~(1ULL << 8);
-    L1_table[_index] |= (1ULL << 10);
+    L1_table[_index] = L1_index_address; //Указание OA адреса
+    L1_table[_index] |= (1ULL << 0); //Указание валидности дескриптора
+    L1_table[_index] &= ~(1ULL << 1); //Указание типа дескриптора. В данном случаи block тип(т.е. указывает на OA)
+    L1_table[_index] &= ~(1ULL << 2); //Указание индекса в MAIR(т.е. указывается тип памяти: Device | Normal). В данном случаи: индекс 0, см. в MMU_init()
+    L1_table[_index] &= ~(1ULL << 6); //Указание флага доступа. В данном случаи RW Priv
+    L1_table[_index] &= ~(1ULL << 7); //Указание флага доступа. В данном случаи RW Priv
+    L1_table[_index] &= ~(1ULL << 8); //Указание того, что между ядрами данный дескриптор не делится на чтение
+    L1_table[_index] |= (1ULL << 10); //Указание доступности дескриптора
 
-    L1_index_address += 0x40000000;
+    L1_index_address += 0x40000000; //Прибавление для указания нового адреса.
 }
 
 void L1_block_descriptor_NORMAL_init(int _index){
-    L1_table[_index] = L1_index_address;
-    L1_table[_index] |= (1ULL << 0);
-    L1_table[_index] &= ~(1ULL << 1);
-    L1_table[_index] |= (1ULL << 2);
-    L1_table[_index] &= ~(1ULL << 6);
-    L1_table[_index] &= ~(1ULL << 7);
-    L1_table[_index] &= ~(1ULL << 8);
-    L1_table[_index] |= (1ULL << 10);
+    L1_table[_index] = L1_index_address; //Указание OA адреса
+    L1_table[_index] |= (1ULL << 0); //Указание валидности дескриптора
+    L1_table[_index] &= ~(1ULL << 1); //Указание типа дескриптора. В данном случаи block тип(т.е. указывает на OA)
+    L1_table[_index] |= (1ULL << 2); //Указание индекса в MAIR(т.е. указывается тип памяти: Device | Normal). В данном случаи: индекс 1, см. в MMU_init()
+    L1_table[_index] &= ~(1ULL << 6); //Указание флага доступа. В данном случаи RW Priv
+    L1_table[_index] &= ~(1ULL << 7); //Указание флага доступа. В данном случаи RW Priv
+    L1_table[_index] &= ~(1ULL << 8); //Указание того, что между ядрами данный дескриптор не делится на чтение
+    L1_table[_index] |= (1ULL << 10); //Указание доступности дескриптора
 
-    L1_index_address += 0x40000000;
+    L1_index_address += 0x40000000; //Прибавление для указания нового адреса.
 }
 
 void L0_table_descriptor_init(){
-    uintptr_t _pointer_L1 = (uintptr_t)L1_table;
-    L0_table[0] = (uint64_t)_pointer_L1;
-    L0_table[0] |= (1ULL << 0) | (1ULL << 1);
+    L0_table[0] = (uint64_t)L1_table; //Указние адреса L1 таблицы
+    L0_table[0] |= (1ULL << 0) | (1ULL << 1); //Указание: валидности дескриптора. Указание типа. В данном случаи это дескриптор указание на следующею таблицу
 }
 
 void L1_table_descriptor_init(int _index){

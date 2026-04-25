@@ -4,10 +4,10 @@
 */
 #pragma Once
 
-#include"Custom-type.h"
-#include"Kernel-modules.h"
-#include"Interrput.h"
+#include<Custom-type.h>
+#include<Kernel-modules.h>
+#include<Interrupts.h>
 
-extern struct UART_buffer Debug_buffer;
+extern struct Ring_buffer Debug_buffer;
 
 void debugf(char _info[]);

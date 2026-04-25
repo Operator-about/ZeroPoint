@@ -1,7 +1,7 @@
-#include"Interrput.h"
+#include<Interrupts.h>
 
-struct UART_buffer Tx_buffer;
-struct UART_buffer Rx_buffer;
+struct Ring_buffer Tx_buffer;
+struct Ring_buffer Rx_buffer;
 
 void write(char _buffer[]){
     Tx_clear();
@@ -14,14 +14,12 @@ void write(char _buffer[]){
     UART->UART_DR = Tx_buffer.buffer[Tx_buffer.tail];
 }
 void read(char _buffer[]){
-    while(1){
-        if(Rx_buffer.buffer[0] != '\0'){
-            for(int _buffer_index = 0; _buffer_index < 5; _buffer_index++){
-                __asm__("MOV X16, %0" : : "r"(Rx_buffer.head));
-                _buffer[_buffer_index] = Rx_buffer.buffer[_buffer_index];
-            }
-            break;
-        }
+    while(Rx_buffer.end == 0){
+        __asm__("WFI"); //Если передача не закончена, то процессор падает в WFI для ожидания прерывания
+    }
+    check_text_from_Rx();
+    for(int _index = 0; _index < Rx_buffer.head; _index++){
+        _buffer[_index] = Rx_buffer.buffer[_index];
     }
 }
 
@@ -34,15 +32,18 @@ void send(){
 }
 
 void receving(){
-    UART->UART_ICR = (1ULL << 4);
-    if(UART->UART_DR != '\r' && UART->UART_DR != '\n'){
-        __asm__("ADD X14, X14, #1");
-        Rx_buffer.head++; 
-        Rx_buffer.buffer[Rx_buffer.head] = UART->UART_DR; 
+    while(!(UART->UART_FR & (1ULL << 4))){ //Вытаскивание значение из FIFO по Rx линии
+        Rx_buffer.head++;
+        Rx_buffer.buffer[Rx_buffer.head] = UART->UART_DR;
+        if(Rx_buffer.buffer[Rx_buffer.head] == '\n'){ //Если символ из FIFO(DR) равен \n то выход из цикла
+            Rx_buffer.end = 1;
+            break;
+        }
     }
+    
 }
 
-void GIC_interrput(){
+void GIC_interrupts(){
     volatile uint64_t _IAR_ID;
     __asm__("MRS %0, ICC_IAR1_EL1" : "=r"(_IAR_ID));
     if(_IAR_ID == 33){
@@ -71,14 +72,7 @@ struct BRR_UART calculate_BRR(int _BRR, int _tact){
     return _BRR_local;
 }
 
-int length(char _buffer[]){
-    int _length = 0;
-    while(_buffer[_length] != '\0'){
-        _length++;
-    }
 
-    return _length;
-}
 
 void Tx_clear(){
     Tx_buffer.tail = 0;
@@ -96,4 +90,19 @@ void Rx_clear(){
     }
     Rx_buffer.tail = 0;
     Rx_buffer.head = -1;
+    Rx_buffer.end = 0;
+}
+
+void check_text_from_Rx(){
+    int _need_cleared = 0;
+    int _need_add = 0;
+    for(int _check_index = 0; _check_index < Rx_buffer.head; _check_index++){
+        if(Rx_buffer.buffer[_check_index] == '\r' || Rx_buffer.buffer[_check_index] == '\n'){
+            Rx_buffer.buffer[_check_index] = '\0';
+            _need_cleared++;
+        }
+    }
+    Rx_buffer.head-=_need_cleared;
+    Rx_buffer.head+=1;
+    Rx_buffer.buffer[Rx_buffer.head] = '\0';
 }

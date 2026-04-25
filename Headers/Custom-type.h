@@ -96,10 +96,11 @@ struct UART{
     volatile uint32_t UART_ICR; //Регистр для сброса прерывания в UART
 };
 
-struct UART_buffer{
-    volatile uint8_t buffer[SIZE]; //Буфер
+struct Ring_buffer{
+    char buffer[SIZE]; //Буфер
     volatile int head; //Размер буфера
     volatile int tail; //Текущая позиция
+    volatile int end; //Означет, что передача закончена
 };
 
 struct MMU_registers{

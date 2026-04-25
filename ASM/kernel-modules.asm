@@ -51,14 +51,14 @@ EL1h_configure_finish:
     RET
 MMU_active:
     MRS X0, SCTLR_EL1
-    ORR X0, X0, #(1ULL << 0)
-    AND X0, X0, #~(1ULL << 2)
+    ORR X0, X0, #(1ULL << 0) //Включение MMU
+    AND X0, X0, #~(1ULL << 2) //Выключение кэширования
     MSR SCTLR_EL1, X0
 
     ISB
     RET
 VBAR_set:
-    ADR X0, vector_table_center;
+    ADR X0, vector_table_center
     MSR VBAR_EL1, X0
     
     ISB

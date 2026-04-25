@@ -1,6 +1,6 @@
 #include<Ella.h>
 
-struct UART_buffer Debug_buffer;
+struct Ring_buffer Debug_buffer;
 
 void debugf(char _info[]){
     Debug_buffer.head = 0;
