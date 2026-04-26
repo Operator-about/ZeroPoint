@@ -12,7 +12,7 @@ struct BRR_UART{
     uint32_t FBRD; //Более точная скорость
 };
 
-struct GIC_registers_data{
+struct GICv3_registers_data{
     volatile uint64_t PMR; //Порог для прерывания
     volatile uint64_t SRE; //Доступность GICv3 в регистрах
     volatile uint64_t GROUP1ENABLE; //Разрешение первой группы прерываний(Non-Secure)
@@ -21,14 +21,14 @@ struct GIC_registers_data{
     volatile uint64_t AFF[4]; //Путь к ядру(4 элемента -> т.к. 4 Aff: 3Aff, 2Aff, 1Aff, 0Aff)
 };
 
-struct GICR{
+struct GICRv3{
     volatile uint32_t GICR_CTLR; //Регистр настройки GICR
     uint32_t RESERVE_1[4]; 
     volatile uint32_t GICR_WAKER; //Регистр "буждения" ядра GICR и ожидание пробуждения основного ядра для выполнения прерывания
 };
 
 
-struct GICD{
+struct GICDv3{
     /*
         RESERVE_* - нужны для резервации место до друго-го регистра в структуре
         Как высчитывать RESERVE:
@@ -69,9 +69,40 @@ struct GICD{
     volatile uint64_t GICD_IROUTER[128]; //Указание ядров для прерываний
 };
 
-struct GIC{
-    struct GICD* GICD;
-    struct GICR* GICR[GICRS];
+struct GICv3{
+    struct GICDv3* GICD;
+    struct GICRv3* GICR[GICRS];
+};
+
+struct GICDv2{
+    volatile uint32_t GICD_CTLR;
+    uint32_t RESERVE_1[31];
+    volatile uint32_t GICD_IGROUER[4];
+    uint32_t RESERVE_2[28];
+    volatile uint32_t GICD_ISENABLER[4];
+    uint32_t RESERVE_3[60];
+    volatile uint32_t GICD_ISPENDER[4];
+    uint32_t RESERVE_4[124];
+    volatile uint32_t GICD_IPRIORITYR[32];
+    uint32_t RESERVE_5[224];
+    volatile uint32_t GICD_ITARGETSR[32];
+    uint32_t RESERVE_6[224];
+    volatile uint32_t GICD_ICFGR[8];
+};
+
+struct GICCv2{
+    volatile uint32_t GICC_CTLR;
+    volatile uint32_t GICC_PMR;
+    uint32_t RESERVE_1[1];
+    volatile uint32_t GICC_IAR;
+    volatile uint32_t GICC_EOIR;
+    uint32_t RESERVE_2[1019];
+    volatile uint32_t GICC_DIR;
+};
+
+struct GICv2{
+    struct GICDv2* GICD;
+    struct GICCv2* GICC;
 };
 
 struct UART{

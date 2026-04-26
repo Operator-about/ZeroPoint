@@ -37,3 +37,11 @@ int compare_s(char _comble_buffer[], char _src_buffer[]){
     return _result;
 }
 
+int GIC_version_check(){
+    uint64_t _GIC_version;
+    __asm__("MRS %0, ID_AA64PFR0_EL1" : "=r"(_GIC_version));
+    if(_GIC_version & (0b0001 << 24)){
+        return 3;
+    }
+    return 2;
+}

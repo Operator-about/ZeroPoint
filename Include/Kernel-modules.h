@@ -6,6 +6,8 @@ extern long EL3_to_EL1();
 extern long zero_PSTATE();
 extern long MMU_active();
 extern long VBAR_set();
+extern long GIC_version_check_asm();
 void clear_buffer(char _buffer[]);
 int length(char _buffer[]);
 int compare_s(char _comble_buffer[], char _src_buffer[]);
+int GIC_version_check();
