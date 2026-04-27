@@ -7,9 +7,11 @@ void GICCv2_init(){
 
 void GICDv2_init(){
     GICv2_.GICD->GICD_CTLR |= (1ULL << 1);
-    GICv2_.GICD->GICD_IGROUER[33 / 32] |= (1ULL << (33 % 32));
-    GICv2_.GICD->GICD_ICFGR[33 / 16] &= ~(1ULL << ((33 % 16) * 2 + 1));
-    GICv2_.GICD->GICD_ITARGETSR[33 / 4] |= (0x01 << ((33 % 4) * 8));
-    GICv2_.GICD->GICD_IPRIORITYR[33 / 4] |= (1ULL << ((33 % 4) * 8));
-    GICv2_.GICD->GICD_ISENABLER[33 / 32] |= (1ULL << (33 % 32));
+    for(int _interrupts_index = 32; _interrupts_index < 128; _interrupts_index++){
+        GICv2_.GICD->GICD_IGROUER[_interrupts_index / 32] |= (1ULL << (_interrupts_index % 32));
+        GICv2_.GICD->GICD_ICFGR[_interrupts_index / 16] &= ~(1ULL << ((_interrupts_index % 16) * 2 + 1));
+        GICv2_.GICD->GICD_ITARGETSR[_interrupts_index / 4] |= (0x01 << ((_interrupts_index % 4) * 8));
+        GICv2_.GICD->GICD_IPRIORITYR[_interrupts_index / 4] |= (1ULL << ((_interrupts_index % 4) * 8));
+        GICv2_.GICD->GICD_ISENABLER[_interrupts_index / 32] |= (1ULL << (_interrupts_index % 32));
+    }
 }

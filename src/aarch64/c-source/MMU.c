@@ -2,12 +2,19 @@
 
 alignas(4096) uint64_t L0_table[512];
 alignas(4096) uint64_t L1_table[512];
+alignas(4096) uint64_t L2_table[512];
 uint64_t L1_index_address;
+uint64_t L2_index_address;
+
 
 void MMU_init(){
-    L1_index_address = (uint64_t)0x00000000; //Указание нулевого адреса для правильного расчёта
+    L1_index_address = (uint64_t)0x40000000; //Указание нулевого адреса для правильного расчёта
+    L2_index_address = (uint64_t)0x00000000;
     L0_table_descriptor_init();
-    L1_block_descriptor_DEVICE_init(0);
+    L1_table_descriptor_init(0);
+    for(int _L2_index = 0; _L2_index < 511; _L2_index++){
+        L2_block_descriptor_DEVICE_init(_L2_index);
+    }
     L1_block_descriptor_NORMAL_init(1);
     struct MMU_registers _registers;
     
@@ -61,6 +68,19 @@ void L0_table_descriptor_init(){
 }
 
 void L1_table_descriptor_init(int _index){
-    /*Будет реализация, когда-то*/
+    L1_table[_index] = (uint64_t)L2_table;
+    L1_table[_index] |= (1ULL << 0) | (1ULL << 1);
 }
 
+void L2_block_descriptor_DEVICE_init(int _index){
+    L2_table[_index] = L2_index_address; //Указание OA адреса
+    L2_table[_index] |= (1ULL << 0); //Указание валидности дескриптора
+    L2_table[_index] &= ~(1ULL << 1); //Указание типа дескриптора. В данном случаи block тип(т.е. указывает на OA)
+    L2_table[_index] &= ~(1ULL << 2); //Указание индекса в MAIR(т.е. указывается тип памяти: Device | Normal). В данном случаи: индекс 0, см. в MMU_init()
+    L2_table[_index] &= ~(1ULL << 6); //Указание флага доступа. В данном случаи RW Priv
+    L2_table[_index] &= ~(1ULL << 7); //Указание флага доступа. В данном случаи RW Priv
+    L2_table[_index] &= ~(1ULL << 8); //Указание того, что между ядрами данный дескриптор не делится на чтение
+    L2_table[_index] |= (1ULL << 10); //Указание доступности дескриптора
+
+    L2_index_address += 0x00200000; //Прибавление для указания нового адреса.
+}

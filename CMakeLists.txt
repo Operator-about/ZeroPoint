@@ -15,7 +15,8 @@ ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/boot/startup.asm
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/boot/info.asm
 ${CMAKE_CURRENT_SOURCE_DIR}/src/Kernel.c
 ${CMAKE_CURRENT_SOURCE_DIR}/common/Ella.c
-${CMAKE_CURRENT_SOURCE_DIR}/common/Kernel-modules.c)
+${CMAKE_CURRENT_SOURCE_DIR}/common/Kernel-modules.c
+${CMAKE_CURRENT_SOURCE_DIR}/common/Stringz.c)
 
 add_executable(${PROJECT_NAME}.elf ${SOURCES})
 

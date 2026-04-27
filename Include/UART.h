@@ -1,6 +1,7 @@
 #include<Custom-type.h>
 #include<GIC.h>
 #include<Kernel-modules.h>
+#include<Stringz.h>
 
 extern struct Ring_buffer Tx_buffer;
 extern struct Ring_buffer Rx_buffer;

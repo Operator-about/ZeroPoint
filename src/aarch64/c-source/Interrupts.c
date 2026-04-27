@@ -3,7 +3,7 @@
 
 void send(){
     UARTPL011->UART_ICR = (1ULL << 5); //Сброс прерывания
-    if(Tx_buffer.tail < Tx_buffer.head && Tx_buffer.buffer[Tx_buffer.tail+1] != '\0'){
+    while(!(UARTPL011->UART_FR & (1ULL << 5)) && Tx_buffer.tail < Tx_buffer.head){
         Tx_buffer.tail++;
         UARTPL011->UART_DR = Tx_buffer.buffer[Tx_buffer.tail]; //Запись значения
     }

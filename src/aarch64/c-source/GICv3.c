@@ -17,13 +17,15 @@ void GICv3_registers_init(){
 
 void GICDv3_init(){
     GICv3_.GICD->GICD_CTLR |= (1ULL << 5) | (1ULL << 1);
-    GICv3_.GICD->GICD_IGROUPR[33 / 32] |= (1ULL << (33 % 32));
-    GICv3_.GICD->GICD_IGRPMODR[33 / 32] &= ~(1ULL << (33 % 32));
-    GICv3_.GICD->GICD_ICFGR[33 / 16] |= (1ULL << ((33 % 4) * 2 + 1));
-    GICv3_.GICD->GICD_IROUTER[33] |= (GICv3_registers.AFF[0] << 0) | (GICv3_registers.AFF[1] << 8) | (GICv3_registers.AFF[2] << 16) | (GICv3_registers.AFF[3] << 32);
-    GICv3_.GICD->GICD_IROUTER[33] &= ~(1ULL << 31);
-    GICv3_.GICD->GICD_IPRIORITYR[33 / 4] |= (1ULL << (33 % 4));
-    GICv3_.GICD->GICD_ISENABLER[33 / 32] |= (1ULL << (33 % 32));  
+    for(int _interrupts_index = 32; _interrupts_index < 128; _interrupts_index++){
+        GICv3_.GICD->GICD_IGROUPR[_interrupts_index / 32] |= (1ULL << (_interrupts_index % 32));
+        GICv3_.GICD->GICD_IGRPMODR[_interrupts_index / 32] &= ~(1ULL << (_interrupts_index % 32));
+        GICv3_.GICD->GICD_ICFGR[_interrupts_index / 16] |= (1ULL << ((_interrupts_index % 4) * 2 + 1));
+        GICv3_.GICD->GICD_IROUTER[_interrupts_index] |= (GICv3_registers.AFF[0] << 0) | (GICv3_registers.AFF[1] << 8) | (GICv3_registers.AFF[2] << 16) | (GICv3_registers.AFF[3] << 32);
+        GICv3_.GICD->GICD_IROUTER[_interrupts_index] &= ~(1ULL << 31);
+        GICv3_.GICD->GICD_IPRIORITYR[_interrupts_index / 4] |= (1ULL << (_interrupts_index % 4));
+        GICv3_.GICD->GICD_ISENABLER[_interrupts_index / 32] |= (1ULL << (_interrupts_index % 32)); 
+    }
 }
 
 void GICRv3_init(){

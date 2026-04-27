@@ -5,13 +5,20 @@ struct Ring_buffer Rx_buffer;
 
 void write(char _buffer[]){
     Tx_clear();
-    Tx_buffer.head = length(_buffer); //Указание длинны сообщения
+    Tx_buffer.head = length_s(_buffer); //Указание длинны сообщения
     Tx_buffer.tail = 0;
     
-    for(int _buffer_index = 0; _buffer_index < length(_buffer); _buffer_index++){
+    for(int _buffer_index = 0; _buffer_index < length_s(_buffer); _buffer_index++){
         Tx_buffer.buffer[_buffer_index] = _buffer[_buffer_index];
     }
-    UARTPL011->UART_DR = Tx_buffer.buffer[Tx_buffer.tail];
+    
+    while(!(UARTPL011->UART_FR & (1ULL << 5)) && Tx_buffer.buffer[Tx_buffer.tail+1] != '\0'){
+        if(Tx_buffer.tail < Tx_buffer.head){
+            UARTPL011->UART_DR = Tx_buffer.buffer[Tx_buffer.tail];
+            Tx_buffer.tail++;
+        }
+    }
+    Tx_clear();
 }
 
 void read(char _buffer[]){
@@ -28,7 +35,7 @@ void UARTPL011_init(){
     UARTPL011->UART_IBRD = BRR_calculate(9600, 480000000).IBRD;
     UARTPL011->UART_FBRD = BRR_calculate(9600, 480000000).FBRD;
     UARTPL011->UART_LCR_H |= (1ULL << 4);
-    UARTPL011->UART_IFLS &= ~(1ULL << 0);
+    UARTPL011->UART_IFLS |= (2ULL << 0);
     UARTPL011->UART_IFLS |= (2ULL << 3);
     UARTPL011->UART_IMSC |= (1ULL << 4) | (1ULL << 5);
     UARTPL011->UART_CR |= (1ULL << 8) | (1ULL << 9);

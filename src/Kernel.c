@@ -4,6 +4,7 @@
 #include<GIC.h>
 #include<MMU.h>
 #include<UART.h>
+#include<Stringz.h>
 
 struct UART* UARTPL011;
 struct GICv3 GICv3_;
@@ -11,18 +12,26 @@ struct GICv2 GICv2_;
 struct GICv3_registers_data GICv3_registers;
 
 int main(void){
-    write("Welcome to ZeroPoint!\r\n");
     char _keyboard_buffer_input[100];
     while(1){
+        write(">>");
         read(_keyboard_buffer_input);
         Rx_clear();
         if(compare_s(_keyboard_buffer_input, "About") == 1){
-            write("ZeroPoint\r\nVersion - 0.0.1\r\nStatus - Power On \r\n");
+            clear_buffer(_keyboard_buffer_input);
+            write("=========================================================\r\n");
+            write("_____  _____  _____  _____  _____  _____  +  _____  +    \r\n");
+            write("   // ||     ||   ||||   ||||   ||||   || | ||   ||-|-   \r\n");
+            write("  //  ||____ ||     ||   ||||___||||   || | ||   || |    \r\n");
+            write(" //   ||     ||     ||   ||||     ||   || | ||   || |    \r\n");
+            write("//___ ||____ ||     ||___||||     ||___|| | ||   || |___ \r\n");
+            write("=========================================================\r\n");
+            write("Kernel: v0.0.1\r\n");
         }
         else{
+            clear_buffer(_keyboard_buffer_input);
             write("Unknow command\r\n");
         }
-        clear_buffer(_keyboard_buffer_input);
         __asm__("NOP");
     }
 }
