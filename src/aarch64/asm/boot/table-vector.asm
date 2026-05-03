@@ -2,6 +2,7 @@
 .global vector_table_center
 .global GIC_interrupts 
 
+//Должна быть выровнена по 2КБ
 .align 11
 vector_table_center:
     synchronous_elxt:

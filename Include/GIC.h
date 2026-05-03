@@ -7,6 +7,7 @@ extern struct GICv3_registers_data GICv3_registers;
 
 void GICDv2_init();
 void GICCv2_init();
+
 void GICDv3_init();
 void GICRv3_init();
 void GICv3_registers_init();

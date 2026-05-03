@@ -4,7 +4,7 @@ struct Ring_buffer Tx_buffer;
 struct Ring_buffer Rx_buffer;
 
 void write(char _buffer[]){
-    Tx_clear();
+    clear_buffer(Tx_buffer.buffer);
     Tx_buffer.head = length_s(_buffer); //Указание длинны сообщения
     Tx_buffer.tail = 0;
     
@@ -18,17 +18,23 @@ void write(char _buffer[]){
             Tx_buffer.tail++;
         }
     }
-    Tx_clear();
 }
 
 void read(char _buffer[]){
     while(Rx_buffer.end == 0){
         __asm__("WFI"); //Если передача не закончена, то процессор падает в WFI для ожидания прерывания
     }
-    check_text_from_Rx();
+    Rx_buffer.buffer[Rx_buffer.head] = '\0'; //Очистка от \n
+    Rx_buffer.buffer[Rx_buffer.head-1] = '\0'; //Очистка от \r
+    Rx_buffer.head--;
     for(int _index = 0; _index < Rx_buffer.head; _index++){
         _buffer[_index] = Rx_buffer.buffer[_index];
     }
+
+    clear_buffer(Rx_buffer.buffer);
+    Rx_buffer.head = -1;
+    Rx_buffer.end = 0;
+    Rx_buffer.tail = 0;
 }
 
 void UARTPL011_init(){
@@ -47,42 +53,7 @@ struct BRR_UART BRR_calculate(int _BRR, int _GHZ){
     //F - можно сказать, что это стабилизатор I. Измерение в I могут быть чу-чуть не точные, так, как полсе деления остаётся остаток, который никуда не записывается
     //F работает так: берёт остаток от деления при расчёте I и округляет его. Это делается для того, чтобы скорость передачи была более стабильной
     //Формула для I показана в коде. Но вот ещё-раз: ТАКТ / ЧИСТУЮ_СКОРОСТЬ * 16
-    uint32_t _BRDDIVF = (uint32_t)(((((_GHZ % (_BRR * 16)) * 64) + 32) / 64) & 0x3F); //Расчёт FBRD
-    uint32_t _BRDDIVI = (uint32_t)(_GHZ / (_BRR * 16)); //Расёт IBRD
-
-    struct BRR_UART _BRR_local = {.IBRD = _BRDDIVI, .FBRD = _BRDDIVF};
+    struct BRR_UART _BRR_local = {.IBRD = (uint32_t)(_GHZ / (_BRR * 16)), 
+        .FBRD = (uint32_t)(((((_GHZ % (_BRR * 16)) * 64) + 32) / 64) & 0x3F)};
     return _BRR_local;
-}
-
-void check_text_from_Rx(){
-    int _need_cleared = 0;
-    int _need_add = 0;
-    for(int _check_index = 0; _check_index < Rx_buffer.head; _check_index++){
-        if(Rx_buffer.buffer[_check_index] == '\r' || Rx_buffer.buffer[_check_index] == '\n'){
-            Rx_buffer.buffer[_check_index] = '\0';
-            _need_cleared++;
-        }
-    }
-    Rx_buffer.head-=_need_cleared;
-    Rx_buffer.head+=1;
-    Rx_buffer.buffer[Rx_buffer.head] = '\0';
-}
-
-void Tx_clear(){
-    Tx_buffer.tail = 0;
-    for(; Tx_buffer.tail < Tx_buffer.head; Tx_buffer.tail++){
-        Tx_buffer.buffer[Tx_buffer.tail] = '\0';
-    }
-    Tx_buffer.tail = 0;
-    Tx_buffer.head = 0;
-}
-
-void Rx_clear(){
-    Rx_buffer.tail = 0;
-    for(; Rx_buffer.tail < Rx_buffer.head; Rx_buffer.tail++){
-        Rx_buffer.buffer[Rx_buffer.tail] = '\0';
-    }
-    Rx_buffer.tail = 0;
-    Rx_buffer.head = -1;
-    Rx_buffer.end = 0;
 }

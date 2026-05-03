@@ -1,12 +1,10 @@
 #define DEBUG 1
-#define VERISON 001
+#define VERISON 002
 #include<Custom-type.h>
 #include<stdalign.h>
 #include<Stringz.h>
-extern long EL3_to_EL1();
-extern long zero_PSTATE();
-extern long MMU_active();
-extern long VBAR_set();
-extern long GIC_version_check_asm();
+void VBAR_set();
 void clear_buffer(char _buffer[]);
 int GIC_version_check();
+int MMU_IPS_check();
+int get_number_length(int _number);

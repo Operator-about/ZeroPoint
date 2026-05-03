@@ -3,20 +3,20 @@
 void GICv3_registers_init(){
     GICv3_affinity_router();
 
-    GICv3_registers.CTLR |= (1ULL << 3) | (1ULL << 0);
-    GICv3_registers.PMR |= (0xFF << 0);
+    GICv3_registers.CTLR |= (1ULL << 6) | (1ULL << 1);
+    GICv3_registers.PMR = 0xFF;
     GICv3_registers.GROUP1ENABLE |= (1ULL << 0);
-    GICv3_registers.CTLR |= (1ULL << 4) | (1ULL << 6);
-    
-    __asm__("MSR ICC_CTLR_EL3, %0" : :"r"(GICv3_registers.CTLR));
+    GICv3_registers.SRE |= (1ULL << 0);
+
+    __asm__("MSR ICC_CTLR_EL1, %0" : :"r"(GICv3_registers.CTLR));
     __asm__("MSR ICC_PMR_EL1, %0" : :"r"(GICv3_registers.PMR));
-    __asm__("MSR ICC_SRE_EL3, %0" : :"r"(GICv3_registers.SRE));
-    __asm__("MSR ICC_IGRPEN1_EL3, %0" : :"r"(GICv3_registers.GROUP1ENABLE));
+    __asm__("MSR ICC_SRE_EL1, %0" : :"r"(GICv3_registers.SRE));
+    __asm__("MSR ICC_IGRPEN1_EL1, %0" : :"r"(GICv3_registers.GROUP1ENABLE));
     __asm__("ISB");
 }
 
 void GICDv3_init(){
-    GICv3_.GICD->GICD_CTLR |= (1ULL << 5) | (1ULL << 1);
+    GICv3_.GICD->GICD_CTLR |= (1ULL << 4) | (1ULL << 1);
     for(int _interrupts_index = 32; _interrupts_index < 128; _interrupts_index++){
         GICv3_.GICD->GICD_IGROUPR[_interrupts_index / 32] |= (1ULL << (_interrupts_index % 32));
         GICv3_.GICD->GICD_IGRPMODR[_interrupts_index / 32] &= ~(1ULL << (_interrupts_index % 32));

@@ -40,15 +40,15 @@ struct GICDv3{
     */
     volatile uint32_t GICD_CTLR;
     uint32_t RESERVE_1[31];
-    volatile uint32_t GICD_IGROUPR[4];
-    uint32_t RESERVE_2[28];
+    volatile uint32_t GICD_IGROUPR[3];
+    uint32_t RESERVE_2[29];
     //4 элемента -> так как это кол-во 32-битных регистров, где 32 прерывания. Т.е. в каждом 32 битном по 32 прерывания
     //Формула: ID / 32 - для одного прерывания. Для размера массива, формула: Всего-прерываний / 32
     //Где 32 - это кол-во прерываний на один 32-битный регистр
-    volatile uint32_t GICD_ISENABLER[4]; //Выставление доступных прерываний
-    uint32_t RESERVE_3[60];
-    volatile uint32_t GICD_ISPENDER[4];
-    uint32_t RESERVE_4[124];
+    volatile uint32_t GICD_ISENABLER[3]; //Выставление доступных прерываний
+    uint32_t RESERVE_3[61];
+    volatile uint32_t GICD_ISPENDER[3];
+    uint32_t RESERVE_4[125];
     //32 элемента -> так как в одном 32 битном регистре 4 ячейке по 1 байту(т.е. по 8 бит каждая). Это вычесляется так: 
     //Формула: ID / 4 - для одного прерывания. Для размера массива, формула: Всего-прерываний / 4
     //Где 4 - это кол-во прерываний в размер по 8 бит каждый, в одном 32-битном регистре
@@ -62,8 +62,8 @@ struct GICDv3{
     uint32_t RESERVE_6[56];
     //Формула: ID / 32 - для одного прерывания. Для размера массива, формула: Всего-прерываний / 32S
     //Где 32 - это кол-во прерываний на один 32-битный регистр 
-    volatile uint32_t GICD_IGRPMODR[4]; //Регистр для указания под-ругппы прерываний
-    uint32_t RESERVE_7[5371];
+    volatile uint32_t GICD_IGRPMODR[3]; //Регистр для указания под-ругппы прерываний
+    uint32_t RESERVE_7[5372];
     //128 элемента -> так как это для всех прерываний, а общее кол-во прерываний на данный момент 128
     //Формула: ID * 8 - для одного прерывания. Для размера массива, формула: -
     volatile uint64_t GICD_IROUTER[128]; //Указание ядров для прерываний
@@ -76,9 +76,9 @@ struct GICv3{
 
 struct GICDv2{
     volatile uint32_t GICD_CTLR;
-    uint32_t RESERVE_1[31];
+    uint32_t RESERVE_1[32];
     volatile uint32_t GICD_IGROUER[4];
-    uint32_t RESERVE_2[28];
+    uint32_t RESERVE_2[27];
     volatile uint32_t GICD_ISENABLER[4];
     uint32_t RESERVE_3[60];
     volatile uint32_t GICD_ISPENDER[4];

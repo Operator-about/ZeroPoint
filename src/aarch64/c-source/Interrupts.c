@@ -22,34 +22,38 @@ void receving(){
 }
 
 void GIC_interrupts(){
-    if(GIC_version_check() == 3){
-        volatile uint64_t _IAR_ID;
-        __asm__("MRS %0, ICC_IAR1_EL1" : "=r"(_IAR_ID));
-        if(_IAR_ID == 33){
-            if(UARTPL011->UART_MIS & (1ULL << 5)){
-                send();
+    switch(GIC_version_check()){
+        case 3:
+            volatile uint64_t _IAR_ID_64;
+            __asm__("MRS %0, ICC_IAR1_EL1" : "=r"(_IAR_ID_64));
+            if(_IAR_ID_64 == 33){
+                if(UARTPL011->UART_MIS & (1ULL << 5)){
+                        send();
+                }
+                else if(UARTPL011->UART_MIS & (1ULL << 4)){
+                    receving();
+                }
             }
-            else if(UARTPL011->UART_MIS & (1ULL << 4)){
-                receving();
+            //DIR используется из-за включённого в CTLR бита EOImode1NS
+            __asm__("MSR ICC_EOIR1_EL1, %0" : : "r"(_IAR_ID_64)); //Завершение прерывание
+            __asm__("MSR ICC_DIR_EL1, %0" : : "r"(_IAR_ID_64)); //Сброс прерывания
+            break;
+        case 2:
+            volatile uint32_t _IAR_ID_32;
+            _IAR_ID_32 |= (GICv2_.GICC->GICC_IAR << 0);
+            if(_IAR_ID_32 == 33){
+                if(UARTPL011->UART_MIS & (1ULL << 5)){
+                    send();
+                }
+                else if(UARTPL011->UART_MIS & (1ULL << 4)){
+                    receving();
+                }
             }
-        }
-        //DIR используется из-за включённого в CTLR бита EOImode1NS
-        __asm__("MSR ICC_EOIR1_EL1, %0" : : "r"(_IAR_ID)); //Завершение прерывание
-        __asm__("MSR ICC_DIR_EL1, %0" : : "r"(_IAR_ID)); //Сброс прерывания
-    }
-    else if(GIC_version_check() == 2){
-        volatile uint32_t _IAR_ID;
-        _IAR_ID |= (GICv2_.GICC->GICC_IAR << 0);
-        if(_IAR_ID == 33){
-            if(UARTPL011->UART_MIS & (1ULL << 5)){
-                send();
-            }
-            else if(UARTPL011->UART_MIS & (1ULL << 4)){
-                receving();
-            }
-        }
-        GICv2_.GICC->GICC_EOIR |= (_IAR_ID << 0);
-        GICv2_.GICC->GICC_DIR |= (_IAR_ID << 0);
+            GICv2_.GICC->GICC_EOIR |= (_IAR_ID_32 << 0);
+            GICv2_.GICC->GICC_DIR |= (_IAR_ID_32 << 0);
+            break;
+        default:
+            break;
     }
 }
 
