@@ -1,7 +1,7 @@
 ENTRY(start)
 
 MEMORY{
-    RAM(rwx) : ORIGIN = 0x41000000, LENGTH = 4096M
+    RAM(rwx) : ORIGIN = 0x00080000, LENGTH = 4096M
 }
 
 
@@ -36,12 +36,6 @@ SECTIONS{
     } > RAM
     . = ALIGN(16);
     __bss_end = .;
-
-    . = ALIGN(16);
-    .stack (NOLOAD) : {
-        . = . + 0x1000;
-        _stack_top = .;
-    } > RAM
 
     __end = .;
 }

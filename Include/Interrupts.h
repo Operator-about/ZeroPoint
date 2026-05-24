@@ -2,8 +2,10 @@
 
 #include<Custom-type.h>
 #include<Ella.h>
-#include<GIC.h>
-#include<UART.h>
+#include<Kernel-modules.h>
+
+extern struct Ring_buffer Tx_buffer;
+extern struct Ring_buffer Rx_buffer;
 
 //I/O функции
 void send();

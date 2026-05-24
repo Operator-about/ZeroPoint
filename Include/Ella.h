@@ -8,8 +8,5 @@
 #include<Kernel-modules.h>
 #include<Interrupts.h>
 #include<Stringz.h>
-#include<UART.h>
 
 extern struct Ring_buffer Debug_buffer;
-
-void debugf(char _info[]);

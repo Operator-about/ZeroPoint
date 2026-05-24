@@ -6,6 +6,14 @@
 #include<string.h>
 #include<stdbool.h>
 
+struct GPIO{
+    uint32_t RESERVE_1[1];
+    volatile uint32_t GPFSEL1;
+    uint32_t RESERVE_2[55];
+    volatile uint32_t GPIO_PUP_PDN_CNTRL_REG0;
+};
+
+
 struct BRR_UART{
     //Скорости UART
     uint32_t IBRD; //Неточная скорость
@@ -76,18 +84,18 @@ struct GICv3{
 
 struct GICDv2{
     volatile uint32_t GICD_CTLR;
-    uint32_t RESERVE_1[32];
-    volatile uint32_t GICD_IGROUER[4];
-    uint32_t RESERVE_2[27];
-    volatile uint32_t GICD_ISENABLER[4];
-    uint32_t RESERVE_3[60];
-    volatile uint32_t GICD_ISPENDER[4];
-    uint32_t RESERVE_4[124];
-    volatile uint32_t GICD_IPRIORITYR[32];
-    uint32_t RESERVE_5[224];
-    volatile uint32_t GICD_ITARGETSR[32];
-    uint32_t RESERVE_6[224];
-    volatile uint32_t GICD_ICFGR[8];
+    volatile uint32_t GICD_TYPER;
+    uint32_t RESERVE_1[31];
+    volatile uint32_t GICD_IGROUER[31];
+    volatile uint32_t GICD_ISENABLER[32];
+    uint32_t RESERVE_3[32];
+    volatile uint32_t GICD_ISPENDER[32];
+    uint32_t RESERVE_4[96];
+    volatile uint32_t GICD_IPRIORITYR[255];
+    uint32_t RESERVE_5[1];
+    volatile uint32_t GICD_ITARGETSR[255];
+    uint32_t RESERVE_6[1];
+    volatile uint32_t GICD_ICFGR[64];
 };
 
 struct GICCv2{
@@ -140,3 +148,11 @@ struct MMU_registers{
     volatile uint64_t TCR;
     volatile uint64_t SCTLR;
 };
+
+typedef struct{
+    volatile uint16_t BPB_BytsPerSector;
+    volatile uint8_t BPB_SectorsPerCluster;
+    volatile uint16_t BPB_ReserverSectorCount;
+    volatile uint8_t BPB_FATsTableCount;
+    volatile uint32_t BPB_FATsTableSize32;
+}FAT32_BPB;

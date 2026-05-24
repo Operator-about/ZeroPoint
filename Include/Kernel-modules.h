@@ -1,8 +1,14 @@
+#pragma once
 #define DEBUG 1
 #define VERISON 002
 #include<Custom-type.h>
 #include<stdalign.h>
 #include<Stringz.h>
+
+extern struct UART* UART;
+extern struct GICv2 GICv2;
+extern struct GICv3 GICv3;
+
 void VBAR_set();
 void clear_buffer(char _buffer[]);
 int GIC_version_check();
