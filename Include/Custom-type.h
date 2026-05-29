@@ -20,14 +20,14 @@ struct BRR_UART{
     uint32_t FBRD; //Более точная скорость
 };
 
-struct GICv3_registers_data{
+typedef struct{
     volatile uint64_t PMR; //Порог для прерывания
     volatile uint64_t SRE; //Доступность GICv3 в регистрах
     volatile uint64_t GROUP1ENABLE; //Разрешение первой группы прерываний(Non-Secure)
     volatile uint64_t GROUP0ENABLE;
     volatile uint64_t CTLR; //Настройки GIC
     volatile uint64_t AFF[4]; //Путь к ядру(4 элемента -> т.к. 4 Aff: 3Aff, 2Aff, 1Aff, 0Aff)
-};
+} GICv3_registers_data;
 
 struct GICRv3{
     volatile uint32_t GICR_CTLR; //Регистр настройки GICR
@@ -80,6 +80,7 @@ struct GICDv3{
 struct GICv3{
     struct GICDv3* GICD;
     struct GICRv3* GICR[GICRS];
+    GICv3_registers_data GICC;
 };
 
 struct GICDv2{
@@ -113,27 +114,14 @@ struct GICv2{
     struct GICCv2* GICC;
 };
 
-struct UART{
-    /*
-        При вычеслении RESERVE используется дальнейшие действия:
-        Прибавление +4 к регистры от которого нужно высчитать отступ до следующего
-        Вычисть эту сумму от адреса регистра до которого нужно отступить
-        Затем поделить на 4
-    */
-    volatile uint32_t UART_DR; //Регистр отправки/получения
-    uint32_t RESERVE_1[5]; 
-    volatile uint32_t UART_FR; //Регистр статуса UART
-    uint32_t RESERVE_2[2]; 
-    volatile uint32_t UART_IBRD; //Регистр для хранения скорости
-    volatile uint32_t UART_FBRD; //Регистр для хранения скорости
-    volatile uint32_t UART_LCR_H; //Регистр для дополнительных настроек Rx/Tx линий
-    volatile uint32_t UART_CR; //Регистр для базовых настроек UART
-    volatile uint32_t UART_IFLS; //Регистр для настройки FIFO
-    volatile uint32_t UART_IMSC; //Регистр для включение прерываний в UART
-    volatile uint32_t UART_RIS; //Регистр для получение сырого статуса прерывания UART
-    volatile uint32_t UART_MIS; //Регистр для получение информации о том, какое прерывание сейчас в UART произошло
-    volatile uint32_t UART_ICR; //Регистр для сброса прерывания в UART
-};
+typedef struct{
+    volatile uint32_t* UART_DR;
+    volatile uint32_t* UART_FR;
+    volatile uint32_t* UART_MIS;
+    volatile uint32_t* UART_IMSC;
+    volatile uint32_t* UART_ICR;
+    volatile uint32_t* UART_RIS;
+}UART0;
 
 struct Ring_buffer{
     char buffer[SIZE]; //Буфер

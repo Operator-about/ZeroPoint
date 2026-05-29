@@ -37,5 +37,11 @@ SECTIONS{
     . = ALIGN(16);
     __bss_end = .;
 
+    . = ALIGN(16);
+    .stack (NOLOAD) : {
+        . = . + 0x1000;
+        _stack_top = .;
+    } > RAM
+
     __end = .;
 }

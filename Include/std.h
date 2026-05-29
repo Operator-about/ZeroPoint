@@ -1,4 +1,3 @@
-#include<Interrupts.h>
 #include<Kernel-modules.h>
 
 void print(char _buffer[]);
