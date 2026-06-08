@@ -1,105 +1,10 @@
 #pragma once
 #define SIZE 4096
-#define GICRS 1
 
 #include<stdint.h>
 #include<string.h>
 #include<stdbool.h>
-
-struct GPIO{
-    uint32_t RESERVE_1[1];
-    volatile uint32_t GPFSEL1;
-    uint32_t RESERVE_2[55];
-    volatile uint32_t GPIO_PUP_PDN_CNTRL_REG0;
-};
-
-
-struct BRR_UART{
-    //Скорости UART
-    uint32_t IBRD; //Неточная скорость
-    uint32_t FBRD; //Более точная скорость
-};
-
 typedef struct{
-    volatile uint64_t PMR; //Порог для прерывания
-    volatile uint64_t SRE; //Доступность GICv3 в регистрах
-    volatile uint64_t GROUP1ENABLE; //Разрешение первой группы прерываний(Non-Secure)
-    volatile uint64_t GROUP0ENABLE;
-    volatile uint64_t CTLR; //Настройки GIC
-    volatile uint64_t AFF[4]; //Путь к ядру(4 элемента -> т.к. 4 Aff: 3Aff, 2Aff, 1Aff, 0Aff)
-} GICv3_registers_data;
-
-struct GICRv3{
-    volatile uint32_t GICR_CTLR; //Регистр настройки GICR
-    uint32_t RESERVE_1[4]; 
-    volatile uint32_t GICR_WAKER; //Регистр "буждения" ядра GICR и ожидание пробуждения основного ядра для выполнения прерывания
-};
-
-
-struct GICDv3{
-    /*
-        RESERVE_* - нужны для резервации место до друго-го регистра в структуре
-        Как высчитывать RESERVE:
-        Если используются не все 1023 прерывания, то надо сделать следующее:
-        К адресу регистра от которого нужно уступить, надо прибавить произведение: 4 * n - где 4 - размер одного 32-битного регистра,
-        а n - кол-во "коробок" в этом регистре используется.
-        Далее, нужно из адреса того регистра до которого нужно отступить вычисть адрес регистра от которого мы производим отступ
-        И после этого надо поделить ответ на 4 - чтобы узнать, сколько нужно ячеек в массиве, который состоит из 32-битных коробок
-    */
-    volatile uint32_t GICD_CTLR;
-    uint32_t RESERVE_1[31];
-    volatile uint32_t GICD_IGROUPR[3];
-    uint32_t RESERVE_2[29];
-    //4 элемента -> так как это кол-во 32-битных регистров, где 32 прерывания. Т.е. в каждом 32 битном по 32 прерывания
-    //Формула: ID / 32 - для одного прерывания. Для размера массива, формула: Всего-прерываний / 32
-    //Где 32 - это кол-во прерываний на один 32-битный регистр
-    volatile uint32_t GICD_ISENABLER[3]; //Выставление доступных прерываний
-    uint32_t RESERVE_3[61];
-    volatile uint32_t GICD_ISPENDER[3];
-    uint32_t RESERVE_4[125];
-    //32 элемента -> так как в одном 32 битном регистре 4 ячейке по 1 байту(т.е. по 8 бит каждая). Это вычесляется так: 
-    //Формула: ID / 4 - для одного прерывания. Для размера массива, формула: Всего-прерываний / 4
-    //Где 4 - это кол-во прерываний в размер по 8 бит каждый, в одном 32-битном регистре
-    volatile uint32_t GICD_IPRIORITYR[32]; //Приоритет конкретному прерыванию
-    uint32_t RESERVE_5[480];
-    //8 -> т.к. в данном случаи в один 32-битный регистр помещается по 16 ячеек с настройками для регистров(2 бита на каждую ячейку). 
-    //Т.е. помещается 16 настроек, для 16 прерываний
-    //Формула: ID / 16. - для одного прерывания. Для размера массива, формула: Всего-прерываний / 16
-    //Где 16 - это кол-во прерываний в размер по 2 бита в 32-битном регистре
-    volatile uint32_t GICD_ICFGR[8]; //Указание, как GIC будет реагировать на прерывания. Либо по level(долгому сигналу) или по edge(короткому одному сигналу)
-    uint32_t RESERVE_6[56];
-    //Формула: ID / 32 - для одного прерывания. Для размера массива, формула: Всего-прерываний / 32S
-    //Где 32 - это кол-во прерываний на один 32-битный регистр 
-    volatile uint32_t GICD_IGRPMODR[3]; //Регистр для указания под-ругппы прерываний
-    uint32_t RESERVE_7[5372];
-    //128 элемента -> так как это для всех прерываний, а общее кол-во прерываний на данный момент 128
-    //Формула: ID * 8 - для одного прерывания. Для размера массива, формула: -
-    volatile uint64_t GICD_IROUTER[128]; //Указание ядров для прерываний
-};
-
-struct GICv3{
-    struct GICDv3* GICD;
-    struct GICRv3* GICR[GICRS];
-    GICv3_registers_data GICC;
-};
-
-struct GICDv2{
-    volatile uint32_t GICD_CTLR;
-    volatile uint32_t GICD_TYPER;
-    uint32_t RESERVE_1[31];
-    volatile uint32_t GICD_IGROUER[31];
-    volatile uint32_t GICD_ISENABLER[32];
-    uint32_t RESERVE_3[32];
-    volatile uint32_t GICD_ISPENDER[32];
-    uint32_t RESERVE_4[96];
-    volatile uint32_t GICD_IPRIORITYR[255];
-    uint32_t RESERVE_5[1];
-    volatile uint32_t GICD_ITARGETSR[255];
-    uint32_t RESERVE_6[1];
-    volatile uint32_t GICD_ICFGR[64];
-};
-
-struct GICCv2{
     volatile uint32_t GICC_CTLR;
     volatile uint32_t GICC_PMR;
     uint32_t RESERVE_1[1];
@@ -107,12 +12,7 @@ struct GICCv2{
     volatile uint32_t GICC_EOIR;
     uint32_t RESERVE_2[1019];
     volatile uint32_t GICC_DIR;
-};
-
-struct GICv2{
-    struct GICDv2* GICD;
-    struct GICCv2* GICC;
-};
+}GICCv2;
 
 typedef struct{
     volatile uint32_t* UART_DR;
@@ -123,19 +23,19 @@ typedef struct{
     volatile uint32_t* UART_RIS;
 }UART0;
 
-struct Ring_buffer{
-    char buffer[SIZE]; //Буфер
+typedef struct{
+    uint8_t buffer[SIZE]; //Буфер
     volatile int head; //Размер буфера
     volatile int tail; //Текущая позиция
     volatile int end; //Означет, что передача закончена
-};
+}Ring_buffer;
 
-struct MMU_registers{
+typedef struct{
     volatile uint64_t MAIR;
     volatile uint64_t TTBR0;
     volatile uint64_t TCR;
     volatile uint64_t SCTLR;
-};
+}MMU_registers;
 
 typedef struct{
     volatile uint16_t BPB_BytsPerSector;
@@ -144,3 +44,30 @@ typedef struct{
     volatile uint8_t BPB_FATsTableCount;
     volatile uint32_t BPB_FATsTableSize32;
 }FAT32_BPB;
+
+typedef struct{
+    volatile uint8_t file_name[11];
+    volatile uint8_t file_attr[1];
+    uint8_t RESERVE_1[8];
+    volatile uint16_t file_FirstClusterHighBit;
+    uint8_t RESERVE_2[6];
+    volatile uint16_t file_FirstClusterLowBit;
+}FAT32_FILE;
+
+typedef struct{
+    volatile uint32_t arg;
+    volatile uint16_t CMD;
+}CMD;
+
+typedef struct{
+
+}SDR;
+
+typedef struct{
+    volatile uint32_t* UART;
+    volatile uint32_t* UART_FR;
+    volatile uint32_t* UART_ICR;
+    volatile uint32_t* UART_IMSC;
+    volatile uint32_t* UART_MIS;
+    volatile uint32_t* GICCv2;
+}Periphery;

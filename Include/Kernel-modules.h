@@ -6,10 +6,10 @@
 #include<Stringz.h>
 
 extern UART0 UART;
-extern struct GICv2 GICv2;
-extern struct GICv3 GICv3;
-extern struct Ring_buffer Tx_buffer;
-extern struct Ring_buffer Rx_buffer;
+extern GICCv2* GICv2;
+extern Periphery All_periphery;
+extern Ring_buffer Tx_buffer;
+extern Ring_buffer Rx_buffer;
 
 void VBAR_set();
 void clear_buffer(char _buffer[]);
@@ -18,3 +18,5 @@ int MMU_IPS_check();
 int get_number_length(int _number);
 void send();
 void receving();
+void init_t_buffer();
+void get_re_remainder();

@@ -1,7 +1,7 @@
 #include<Kernel-modules.h>
 
-struct Ring_buffer Tx_buffer;
-struct Ring_buffer Rx_buffer;
+Ring_buffer Tx_buffer;
+Ring_buffer Rx_buffer;
 
 int get_number_length(int _number){
     int _out = 0;
@@ -59,13 +59,14 @@ void send(){
 
 void receving(){
     while(!(*UART.UART_FR & (1ULL << 4))){
-        Rx_buffer.buffer[Rx_buffer.head] = *UART.UART_DR;
-        if(Rx_buffer.buffer[Rx_buffer.head] == '\n'){
-            *UART.UART_DR = Rx_buffer.buffer[Rx_buffer.head-2];
-            Rx_buffer.end = 1;
-            *UART.UART_IMSC &= ~(1ULL << 4);
-            break;
-        }
         Rx_buffer.head++;
+        Rx_buffer.buffer[Rx_buffer.head] = (uint8_t)(*UART.UART_DR);
+    }
+    return;
+}
+void init_t_buffer(){
+    for(int _index = 0; _index < SIZE; _index++){
+        Rx_buffer.buffer[_index] = '\0';
+        Tx_buffer.buffer[_index] = '\0';
     }
 }
