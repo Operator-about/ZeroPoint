@@ -1,6 +1,6 @@
 .section .vectors, "ax", %progbits
 .global vector_table_center
-.global GIC_interrupts 
+.global IRQh_handel 
 
 //Должна быть выровнена по 2КБ
 .align 11
@@ -26,11 +26,13 @@ vector_table_center:
         STP X4, X5, [SP, #-16]!
         STP X6, X7, [SP, #-16]!
         STP X8, X9, [SP, #-16]! 
-        STP X10, X30, [SP, #-16]!
+        STP X10, X11, [SP, #-16]!
+        STP X29, X30, [SP, #-16]!
 
-        BL GIC_interrupts
+        BL IRQh_handel
 
-        LDP X10, X30, [SP], #16
+        LDP X29, X30, [SP], #16
+        LDP X10, X11, [SP], #16
         LDP X9, X8, [SP], #16
         LDP X7, X6, [SP], #16
         LDP X5, X4, [SP], #16

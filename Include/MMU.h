@@ -4,6 +4,7 @@
 alignas(4096) extern uint64_t L0_table[512];
 alignas(4096) extern uint64_t L1_table[512];
 alignas(4096) extern uint64_t L2_table[512];
+alignas(4096) extern uint64_t L3_table[512][512];
 extern uint64_t L1_index_address;
 extern uint64_t L2_index_address;
 

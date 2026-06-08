@@ -1,5 +1,8 @@
 #include<Kernel-modules.h>
 
+Ring_buffer Tx_buffer;
+Ring_buffer Rx_buffer;
+
 int get_number_length(int _number){
     int _out = 0;
     while((_number % 10) > 0){
@@ -15,9 +18,10 @@ void VBAR_set(){
 }
 
 void clear_buffer(char _buffer[]){
-    int _length = length_s(_buffer);
-    for(int _clear_index; _clear_index < _length; _clear_index++){
-        _buffer[_clear_index] = '\0';
+    int _index = 0;
+    while(_buffer[_index] != '\0'){
+        _buffer[_index] = '\0';
+        _index++;
     }
 }
 
@@ -40,4 +44,29 @@ int MMU_IPS_check(){
         return 36;
     }
     return 32;
+}
+
+void send(){
+    *UART.UART_IMSC &= ~(1ULL << 5);
+    while(!(*UART.UART_FR & (1ULL << 5)) && Tx_buffer.tail <= Tx_buffer.head){
+        *UART.UART_DR = Tx_buffer.buffer[Tx_buffer.tail];
+        Tx_buffer.tail++;
+    }
+    if(Tx_buffer.tail < Tx_buffer.head){
+        *UART.UART_IMSC = (1ULL << 5);
+    }
+}
+
+void receving(){
+    while(!(*UART.UART_FR & (1ULL << 4))){
+        Rx_buffer.head++;
+        Rx_buffer.buffer[Rx_buffer.head] = (uint8_t)(*UART.UART_DR);
+    }
+    return;
+}
+void init_t_buffer(){
+    for(int _index = 0; _index < SIZE; _index++){
+        Rx_buffer.buffer[_index] = '\0';
+        Tx_buffer.buffer[_index] = '\0';
+    }
 }
