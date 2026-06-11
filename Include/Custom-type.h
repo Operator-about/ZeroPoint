@@ -57,17 +57,27 @@ typedef struct{
 typedef struct{
     volatile uint32_t arg;
     volatile uint16_t CMD;
-}CMD;
+}SDCMD;
 
 typedef struct{
-
+    uint32_t RESERVE_1[2];
+    volatile uint32_t ARG_SD;
+    uint16_t RESERVE_2[1];
+    volatile uint16_t CMD_SD;
+    volatile uint32_t RESP_SD[4];
+    uint32_t RESERVE_3[1];
+    volatile uint32_t PS_SD;
+    volatile uint8_t HC_SD;
+    volatile uint8_t PWC_SD;
+    uint16_t RESERVE_4[1];
+    volatile uint16_t CC_SD;
+    uint16_t RESERVE_5[1];
+    volatile uint16_t NS_SD;
+    volatile uint16_t ERS_SD;
+    volatile uint16_t NSE_SD;
+    volatile uint16_t ERSE_SD;
+    volatile uint16_t NSIE_SD;
+    uint16_t RESERVE_6[1];
+    uint32_t RESERVE_7[1];
+    volatile uint64_t CB_SD;
 }SDR;
-
-typedef struct{
-    volatile uint32_t* UART;
-    volatile uint32_t* UART_FR;
-    volatile uint32_t* UART_ICR;
-    volatile uint32_t* UART_IMSC;
-    volatile uint32_t* UART_MIS;
-    volatile uint32_t* GICCv2;
-}Periphery;

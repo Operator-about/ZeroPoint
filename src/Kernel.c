@@ -3,9 +3,11 @@
 #include<MMU.h>
 #include<Stringz.h>
 #include<std.h>
+#include<SD.h>
 
 UART0 UART;
 GICCv2* GICv2;
+SDR* SD_Registers;
 
 int main(void){
     MMU_init();
@@ -24,6 +26,7 @@ int main(void){
     if(GIC_version_check() == 2){
         __asm__("MOV %0, X16" : "=r"(GICv2));
     }
+    __asm__("MOV %0, X17" : "=r"(SD_Registers));
     __asm__("ISB");
 
     __asm__("MOV X10, XZR");
@@ -40,6 +43,9 @@ int main(void){
     char _keyboard_buffer_input[100];
     clear_buffer(_keyboard_buffer_input);
     char _info_buffer[100];
+    print("SD card init\r\n");
+    SDC_init();
+    print("SD card - +\r\n");
     print("Welcome! Load OS success completed! Please type - help for get more information\r\n");
     print("Or input command - about. For get information about OS\r\n");
     while(1){
