@@ -12,8 +12,8 @@ ${CMAKE_CURRENT_SOURCE_DIR}/common/Kernel-modules.c
 ${CMAKE_CURRENT_SOURCE_DIR}/common/Stringz.c
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/table-handel.c
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/SD.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/FAT32.c
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/asm/boot/table-vector.asm
-${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/asm/boot/info.asm
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/asm/boot/startup.asm)
 
 add_executable(${PROJECT_NAME}.elf ${SOURCES})
@@ -22,5 +22,6 @@ target_include_directories(${PROJECT_NAME}.elf PUBLIC ${CMAKE_CURRENT_SOURCE_DIR
 
 target_link_options(${PROJECT_NAME}.elf PRIVATE
     "-T${LINKER_SCRIPT}"
+    "-mcmodel=large"
     "-nostartfiles"
     "--specs=nosys.specs")

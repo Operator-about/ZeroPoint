@@ -4,10 +4,13 @@
 #include<Stringz.h>
 #include<std.h>
 #include<SD.h>
+#include<FAT32.h>
 
 UART0 UART;
 GICCv2* GICv2;
 SDR* SD_Registers;
+uint32_t SD;
+volatile uint32_t DAT_buffer[128];
 
 int main(void){
     MMU_init();
@@ -43,8 +46,12 @@ int main(void){
     char _keyboard_buffer_input[100];
     clear_buffer(_keyboard_buffer_input);
     char _info_buffer[100];
+    clear_buffer(_info_buffer);
     print("SD card init\r\n");
     SDC_init();
+    uint32_t _start_LBA = FS_init();
+    read_block(_start_LBA);
+    init_FAT32_BPB(_start_LBA);
     print("SD card - +\r\n");
     print("Welcome! Load OS success completed! Please type - help for get more information\r\n");
     print("Or input command - about. For get information about OS\r\n");
@@ -60,13 +67,18 @@ int main(void){
             print(" //   ||     ||     ||   ||||     ||   || | ||   || |    \r\n");
             print("//___ ||____ ||     ||___||||     ||___|| | ||   || |___ \r\n");
             print("=========================================================\r\n");
-            print("Kernel: v0.0.3(pre-alpha)\r\n");
+            print("Kernel: v0.0.3\r\n");
         }
         else if(compare_s(_keyboard_buffer_input, "help") == 1){
             clear_buffer(_keyboard_buffer_input);
             print("Attention! This list command work only this terminal:\r\n");
             print("about - command for shows name OS and kernel versions\r\n");
             print("help - shows this list\r\n");
+        }
+        else if(compare_s(_keyboard_buffer_input, "sd-life") == 1){
+            clear_buffer(_keyboard_buffer_input);
+            print("Init test for SD card. Target: live the SD card?\r\n");
+            read_block(2048);
         }
         else{
             clear_buffer(_keyboard_buffer_input);

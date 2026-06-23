@@ -37,7 +37,7 @@ void itos(int _number, char _out_buffer[]){
     char _buffer = '\0';
     while((_number % 10) > 0){
         if((_number % 10) <= 9){
-            _buffer = (char)((_number % 10) + 48); 
+            _buffer = (char)((_number % 10) + '0'); 
             _out_buffer[_size_number - _index] = _buffer;
             _index++;
         }

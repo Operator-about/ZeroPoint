@@ -9,8 +9,16 @@ extern uint64_t L1_index_address;
 extern uint64_t L2_index_address;
 
 void MMU_init();
+
 void L0_table_descriptor_init();
+
 void L1_block_descriptor_NORMAL_init(int _index);
 void L1_block_descriptor_DEVICE_init(int _index);
 void L1_table_descriptor_init(int _index);
+
 void L2_block_descriptor_DEVICE_init(int _index);
+void L2_block_descriptor_NORMAL_init(int _index);
+void L2_table_descriptor_init(int _index);
+
+void L3_block_descriptor_DEVICE_init(int _table_index);
+void L3_block_descriptor_NORMAL_init(int _table_index);

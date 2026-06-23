@@ -1,6 +1,6 @@
 #pragma once
 #define DEBUG 1
-#define VERISON 002
+#define VERISON 003
 #include<Custom-type.h>
 #include<stdalign.h>
 #include<Stringz.h>
@@ -9,6 +9,9 @@ extern UART0 UART;
 extern GICCv2* GICv2;
 extern Ring_buffer Tx_buffer;
 extern Ring_buffer Rx_buffer;
+extern uint32_t SD;
+extern SDR* SD_Registers;
+extern volatile uint32_t DAT_buffer[128];
 
 void VBAR_set();
 void clear_buffer(char _buffer[]);

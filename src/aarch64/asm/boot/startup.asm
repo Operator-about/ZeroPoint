@@ -15,17 +15,23 @@ start:
     ORR X0, X0, #(1ULL << 7)
     MSR SPSR_EL2, X0
 
-    ADR X0, main
+    LDR X0, =main
     MSR ELR_EL2, X0
 
-    ADR X0, EL1h_SP_bottom
+    LDR X0, =EL1h_SP_bottom
     MSR SP_EL1, X0
 
-    ADR X0, vector_table_center
+    LDR X0, =vector_table_center
     MSR VBAR_EL1, X0
 
     ERET
 .section .text
 .global main
+
+.section .bss
+.align 15
+EL1h_SP_top:
+    .SPACE 32768
+EL1h_SP_bottom:
 
     
