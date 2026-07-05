@@ -41,7 +41,7 @@ void SDC_init(){
     SD_Registers->RESP_SD[0] = 0x0;
     SD_Registers->RESP_SD[1] = 0x0;
 
-    SD_barrier(1000);
+    SD_barrier(50);
 
     SDCMD _CMD2;
     _CMD2.arg = 0x0;
@@ -51,7 +51,6 @@ void SDC_init(){
     SD_CMD(_CMD2);
     SD_barrier(50);
 
-    SD_barrier(1000);
 
     SDCMD _CMD3;
     SD_Registers->RESP_SD[0] = 0x0;
@@ -63,7 +62,7 @@ void SDC_init(){
     SD_barrier(50);
     SD = SD_Registers->RESP_SD[0] & 0xFFFF0000;
 
-    SD_barrier(1000);
+    SD_barrier(50);
 
     SDCMD _CMD7;
     _CMD7.arg = 0x0;
@@ -72,31 +71,49 @@ void SDC_init(){
     _CMD7.CMD |= (3ULL << 16) | (1ULL << 19) | (1ULL << 20);
     _CMD7.CMD |= (7ULL << 24);
     SD_CMD(_CMD7);
-    SD_get_status();
 
-    SD_barrier(1000);
+    SD_barrier(50);
+
+    SD_Registers->HC_SD |= (1ULL << 2);
+    SD_barrier(50);
 
     SD_Registers->CC_SD &= ~(1ULL << 2);
     SD_Registers->CC_SD &= ~(1ULL << 0);
 
     uint32_t _base_mhz = ((SD_Registers->CB_SD >> 8) & 0xFF);
-    uint32_t _result = (_base_mhz / (2 * 25)); //Формула для расчёта тактирования: базовая_скорость / 2 * желаемая
+    uint32_t _result = (_base_mhz / (2 * 50)); //Формула для расчёта тактирования: базовая_скорость / 2 * желаемая
     uint32_t _up = ((_result & 0x300) >> 2); //Перенос 9:8 битов в 7:6
     uint32_t _bottom = ((_result & 0x7F) << 8); //Перенос 7:0 битов в 15:8
     SD_Registers->CC_SD = _up | _bottom;
     SD_Registers->CC_SD |= (1ULL << 0);
     while((SD_Registers->CC_SD & (1ULL << 1)) == 0){
-        print("[^]Stable to 25mHz\r\n");
+        print("[^]Stable to 50mHz\r\n");
     }
     SD_Registers->CC_SD |= (1ULL << 2);
     SD_barrier(50);
 
 
     SD_Registers->NS_SD &= ~(1ULL << 1);
-    SD_barrier(1000);
+    SD_barrier(50);
 
     SD_Registers->SR_SD |= (1ULL << 2);
-    SD_barrier(1000);
+    SD_barrier(50);
+
+    SD_Registers->HC_SD |= (1ULL << 1);
+    SD_barrier(50);
+
+    SDCMD _ACMD6;
+    _ACMD6.arg = 0x0;
+    _ACMD6.arg |= (2ULL << 0);
+    _ACMD6.CMD = 0x0;
+    _ACMD6.CMD |= (2ULL << 16) | (1ULL << 19) | (1ULL << 20) | (6ULL << 24);
+
+    _CMD55.arg |= SD;
+    SD_CMD(_CMD55);
+    SD_barrier(50);
+    SD_CMD(_ACMD6);
+
+    SD_barrier(50);
 }
 
 void SD_CMD(SDCMD _CMD){
@@ -177,8 +194,8 @@ void SD_answer(){
 }
 
 void read_block(uint32_t _block_number){
-    SD_barrier(1000);
-    
+    SD_barrier(50);
+
     SDCMD _CMD17;
     _CMD17.arg = 0x0;
     _CMD17.arg = _block_number;
@@ -187,11 +204,11 @@ void read_block(uint32_t _block_number){
     _CMD17.CMD &= ~(1ULL << 0);
     _CMD17.CMD |= (2ULL << 16) | (1ULL << 19) | (1ULL << 20) | (1ULL << 21) | (17ULL << 24); //21(5 бит) - Data present - за этой командой нужно ожидать данные
     SD_CMD(_CMD17);
-    SD_barrier(1000);
+    SD_barrier(50);
 }
 
 uint32_t FS_init(){
-    SD_barrier(1000);
+    SD_barrier(50);
     
     SDCMD _CMD17;
     _CMD17.arg = 0x0;
@@ -201,7 +218,7 @@ uint32_t FS_init(){
     _CMD17.CMD &= ~(1ULL << 0);
     _CMD17.CMD |= (2ULL << 16) | (1ULL << 19) | (1ULL << 20) | (1ULL << 21) | (17ULL << 24); //21(5 бит) - Data present - за этой командой нужно ожидать данные
     SD_CMD(_CMD17);
-    SD_barrier(1000);
+    SD_barrier(50);
 
     MBR* _MBR;
     _MBR->PartionRecord[0].StartLBA = 0x0;
@@ -209,31 +226,11 @@ uint32_t FS_init(){
     _MBR->UMBRDS = 0x0;
     _MBR = (MBR*)DAT_buffer;
 
-    uint8_t* _test = (uint8_t*)DAT_buffer;
-    if(_test[510] == 0x55 && _test[511] == 0xAA){
-        print("[+]Signature ligel\r\n");
-    }
-
-    if(_MBR->PartionRecord[0].StartLBA != 0x0){
-        print("[+]StartLBA reciving\r\n");
-        char _info[100];
-        itos((int)_MBR->PartionRecord[0].StartLBA, _info);
-        print(_info);
-        print("\r\n");
-    }
-
-    if(_MBR->Signature != 0x0){
-        print("[+]Signature reciving\r\n");
-        char _info[100];
-        clear_buffer(_info);
-        itos((int)_MBR->Signature, _info);
-        print(_info);
-        print("\r\n");
-    }
-
-    if(_MBR->UMBRDS != 0x0){
-        print("[+]UMBRDS!\r\n");
-    }
-
     return _MBR->PartionRecord[0].StartLBA;
+}
+
+void DAT_buffer_clear(){
+    for(int _clear = 0; _clear < 512; _clear++){
+        DAT_buffer[_clear] = 0x0;
+    }
 }

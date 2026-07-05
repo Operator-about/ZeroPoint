@@ -12,7 +12,7 @@ typedef struct{
     volatile uint32_t GICC_EOIR;
     uint32_t RESERVE_2[1019];
     volatile uint32_t GICC_DIR;
-}__attribute__((packed)) GICCv2;
+}GICCv2;
 
 typedef struct{
     volatile uint32_t* UART_DR;
@@ -35,7 +35,7 @@ typedef struct{
     volatile uint64_t TTBR0;
     volatile uint64_t TCR;
     volatile uint64_t SCTLR;
-}__attribute__((packed)) MMU_registers;
+}MMU_registers;
 
 typedef struct{
     uint8_t RESERVE_1[11];
@@ -43,18 +43,23 @@ typedef struct{
     volatile uint8_t BPB_SectorsPerCluster;
     volatile uint16_t BPB_ReserverSectorCount;
     volatile uint8_t BPB_FATsTableCount;
-    uint8_t RESERVE_2[15];
+    uint8_t RESERVE_2[19];
     volatile uint32_t BPB_FATsTableSize32;
 }__attribute__((packed)) FAT32_BPB;
 
 typedef struct{
     volatile uint8_t file_name[11];
-    volatile uint8_t file_attr[1];
+    volatile uint8_t file_attr;
     uint8_t RESERVE_1[8];
     volatile uint16_t file_FirstClusterHighBit;
-    uint8_t RESERVE_2[6];
+    uint8_t RESERVE_2[4];
     volatile uint16_t file_FirstClusterLowBit;
 }__attribute__((packed)) FAT32_FILE;
+
+typedef struct{
+    volatile uint32_t LBA_start_FAT;
+    volatile uint32_t LBA_start_DATA;
+}FAT32_STARTP;
 
 typedef struct{
     volatile uint32_t arg;
@@ -84,7 +89,7 @@ typedef struct{
     uint32_t RESERVE_6[1];
     volatile uint16_t HC2_SD;
     volatile uint64_t CB_SD; //Capabilites Register
-}__attribute__((packed)) SDR;
+}SDR;
 
 typedef struct{
     uint8_t RESERVE_3[8];

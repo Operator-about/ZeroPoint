@@ -17,29 +17,16 @@ void IRQh_handel(){
                     }
                 }
                 else if((_IARv2 & 0x3FF) == 158){
-                    if(SD_Registers->PS_SD & (1ULL << 1)){
-                        print("[^]DAT in inhbit\r\n");
-                    }
+                    volatile uint32_t _local_DAT_buffer[128];
 
                     for(int _clear = 0; _clear <= 127; _clear++){
-                        DAT_buffer[_clear] = 0x0;
+                        _local_DAT_buffer[_clear] = 0x0;
                     }
 
                     for(int _index = 0; _index < 128; _index++){
-                        DAT_buffer[_index] = 0x0;
-                        __asm__("DSB SY");
-                        DAT_buffer[_index] = SD_Registers->BDP_SD;
-                        if(DAT_buffer[_index] != 0x0){
-                            *UART.UART_DR= '*';
-                        }
+                        _local_DAT_buffer[_index] = SD_Registers->BDP_SD;
                     }
-                    if(DAT_buffer[127] != 0x0){
-                        print("[^]All data reciving\r\n");
-                    }
-
-                    // if(DAT_buffer[111] != 0x0){
-                    //     print("[+]MBR detected\r\n");
-                    // }
+                    DAT_buffer = (uint8_t*)_local_DAT_buffer;
                     SD_Registers->NS_SD &= ~(1ULL << 5);
                     SD_Registers->NS_SD &= ~(1ULL << 1);
                 }

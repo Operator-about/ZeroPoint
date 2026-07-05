@@ -9,6 +9,7 @@ void SDC_init();
 void SD_CMD(SDCMD _CMD);
 void SD_get_status();
 void SD_answer();
+void DAT_buffer_clear();
 
 void SD_barrier(int _seconds_wait);
 

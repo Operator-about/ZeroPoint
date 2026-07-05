@@ -11,7 +11,7 @@ extern Ring_buffer Tx_buffer;
 extern Ring_buffer Rx_buffer;
 extern uint32_t SD;
 extern SDR* SD_Registers;
-extern volatile uint32_t DAT_buffer[128];
+extern volatile uint8_t* DAT_buffer;
 
 void VBAR_set();
 void clear_buffer(char _buffer[]);
