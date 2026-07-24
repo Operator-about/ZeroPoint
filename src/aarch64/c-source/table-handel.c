@@ -17,18 +17,19 @@ void IRQh_handel(){
                     }
                 }
                 else if((_IARv2 & 0x3FF) == 158){
-                    volatile uint32_t _local_DAT_buffer[128];
+                    volatile uint32_t _local_DAT_buffer[8192];
 
-                    for(int _clear = 0; _clear <= 127; _clear++){
+                    for(int _clear = 0; _clear < 8192; _clear++){
                         _local_DAT_buffer[_clear] = 0x0;
                     }
 
-                    for(int _index = 0; _index < 128; _index++){
+                    for(int _index = 0; _index < 8192; _index++){
                         _local_DAT_buffer[_index] = SD_Registers->BDP_SD;
                     }
                     DAT_buffer = (uint8_t*)_local_DAT_buffer;
+
                     SD_Registers->NS_SD &= ~(1ULL << 5);
-                    SD_Registers->NS_SD &= ~(1ULL << 1);
+                    SD_Registers->NS_SD &= ~(1ULL << 1);   
                 }
             }  
             GICv2->GICC_EOIR = _IARv2;

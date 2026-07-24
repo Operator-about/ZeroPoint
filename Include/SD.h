@@ -5,17 +5,14 @@
 #include<Custom-type.h>
 #include<Stringz.h>
 
-void SDC_init();
-void SD_CMD(SDCMD _CMD);
-void SD_get_status();
-void SD_answer();
-void DAT_buffer_clear();
+extern uint32_t SD;
+extern SDR* SD_Registers;
+extern volatile uint8_t* DAT_buffer;
+extern SDCMD CMD;
 
-void SD_barrier(int _seconds_wait);
-
-void read_block(uint32_t _block_number);
-
-uint32_t FS_init();
-
-void ACMD41_check(SDCMD _ACMD41, SDCMD _CMD55);
-void CMD8_check();
+void SD_card_reinit();
+void SD_mode();
+void CMD_send(CMDR _CMD);
+void read_single_sector(uint32_t _sector);
+void read_multi_sector(uint32_t _sector);
+void write_sector();

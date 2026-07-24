@@ -1,19 +1,21 @@
-.section ".text.boot"
+.section ".text.boot", "ax"
 .global start
 start:
-    MRS X0, HCR_EL2
+    MOV X0, XZR
     ORR X0, X0, #(1ULL << 31)
     AND X0, X0, #~(1ULL << 7)
     AND X0, X0, #~(1ULL << 4)
     AND X0, X0, #~(1ULL << 27)
     MSR HCR_EL2, X0
 
-    MRS X0, SPSR_EL2
+    MOV X0, XZR
     MOV X1, #(5ULL << 0)
     ORR X0, X0, X1
     AND X0, X0, #~(1ULL << 4)
     ORR X0, X0, #(1ULL << 7)
     MSR SPSR_EL2, X0
+
+    MOV X0, XZR
 
     LDR X0, =main
     MSR ELR_EL2, X0

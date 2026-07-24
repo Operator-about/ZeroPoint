@@ -25,6 +25,14 @@ void clear_buffer(char _buffer[]){
     }
 }
 
+void clear_buffer_uint8(uint8_t _buffer[]){
+    int _index = 0;
+    while(_buffer[_index] != 0x0){
+        _buffer[_index] = 0x0;
+        _index++;
+    }
+}
+
 int GIC_version_check(){
     uint64_t _GIC_version;
     __asm__("MRS %0, ID_AA64PFR0_EL1" : "=r"(_GIC_version));
@@ -64,9 +72,16 @@ void receving(){
     }
     return;
 }
+
 void init_t_buffer(){
     for(int _index = 0; _index < SIZE; _index++){
         Rx_buffer.buffer[_index] = '\0';
         Tx_buffer.buffer[_index] = '\0';
+    }
+}
+
+void sec_barrier(int _second){
+    for(int _wait = 0; _wait < 60 * 60 * _second; _wait++){
+        __asm__("NOP");
     }
 }

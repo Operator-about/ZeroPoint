@@ -2,14 +2,14 @@
 
 int length_s(char _buffer[]){
     int _length = 0;
-    while(_buffer[_length] != '\0'){
+    while(_buffer[_length] != '\0' || _buffer[_length] != 0x0){
         _length++;
     }
 
     return _length;
 }
 
-int compare_s(char _comble_buffer[], char _src_buffer[]){
+int compare_s(uint8_t _comble_buffer[], char _src_buffer[]){
     int _result = 0;
     int _index = 0;
     while(1){
@@ -21,7 +21,7 @@ int compare_s(char _comble_buffer[], char _src_buffer[]){
             break;
         }
 
-        if(_comble_buffer[_index] == '\0'){
+        if(_src_buffer[_index] == '\0'){
             break;
         }
         _index++;
@@ -58,4 +58,54 @@ int stoi(char _resource_buffer[]){
         }
     }
     return _number;
+}
+
+int compare_u16_to_ASCII(uint8_t _compare_buffer[], char _src[]){
+    int _compare_index = 0;
+    int _src_index = 0;
+    int _result = 0;
+
+    while(1){
+        if(_compare_buffer[_compare_index] == 0x0){
+            _compare_index++;
+        }
+
+        if(_compare_buffer[_compare_index] == _src[_src_index]){
+            _result = 1;
+        }
+        else{
+            _result = 0;
+            return _result;
+        }
+
+        if(_src[_src_index] == '\0'){
+            return _result;
+        }
+
+        _compare_index++;
+        _src_index++;
+    }
+
+    return _result;
+}
+
+void utf16_to_ASCII(uint8_t _utf16_buffer[], uint8_t _ASCII_out_buffer[]){
+    int _end = 0;
+    int _utf16_index = 0;
+    int _ASCII_index = 0;
+
+    while(_end < 2){
+        if(_utf16_buffer[_utf16_index] == 0x0){
+            _end++;
+            _utf16_index++;
+        }
+
+        if(_utf16_buffer[_utf16_index] != 0x0 && _end < 2){
+            _end = 0;
+            _ASCII_out_buffer[_ASCII_index] = _utf16_buffer[_utf16_index];
+            _ASCII_index++;
+        }
+
+        _utf16_index++;
+    }
 }

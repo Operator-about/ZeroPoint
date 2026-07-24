@@ -9,9 +9,7 @@ extern UART0 UART;
 extern GICCv2* GICv2;
 extern Ring_buffer Tx_buffer;
 extern Ring_buffer Rx_buffer;
-extern uint32_t SD;
-extern SDR* SD_Registers;
-extern volatile uint8_t* DAT_buffer;
+
 
 void VBAR_set();
 void clear_buffer(char _buffer[]);
@@ -22,3 +20,5 @@ void send();
 void receving();
 void init_t_buffer();
 void get_re_remainder();
+void sec_barrier(int _second);
+void clear_buffer_uint8(uint8_t _buffer[]);
