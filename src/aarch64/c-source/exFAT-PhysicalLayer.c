@@ -141,7 +141,7 @@ FileInfo get_file_info(){
 }
 
 int get_count_file(){
-    int _count = -1;
+    int _count = 0;
 
     for(int _index = 0; _index < File.Buffer_index; _index++){
         if(File.Buffer[_index] == 0x85){
