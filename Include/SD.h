@@ -16,3 +16,5 @@ void CMD_send(CMDR _CMD);
 void read_single_sector(uint32_t _sector);
 void read_multi_sector(uint32_t _sector);
 void write_sector();
+
+void IRQ_read();

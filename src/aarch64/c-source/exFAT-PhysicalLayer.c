@@ -51,6 +51,11 @@ void init_exFAT(){
     File.Current_index = 0;
     File.Buffer_index = 0;
 
+    clear_buffer_uint8(CurrentFolder.Name);
+
+    CurrentFolder.FirstCluster = exFAT_attribute.FirstRootCluster;
+    CurrentFolder.FileAttribute = (1ULL << 4);
+
     if(exFAT_attribute.SectorsPerCluster == 64){
         SD_Registers->BC_SD = 0x0040;
     }
@@ -89,6 +94,42 @@ uint32_t walk_FAT(uint32_t _cluster){
         return _tempory_cluster;
     }
 }
+
+uint32_t walk_allocationbitmap(){
+    uint8_t _tempory_buffer[32];
+    uint32_t _first_cluster = 0x0;
+    read_cluster(exFAT_attribute.FirstRootCluster);
+    for(int _build = 0; _build < 32; _build++){
+        _tempory_buffer[_build] = File.Buffer[File.Current_index];
+        File.Current_index++;
+        if(((_build + 1) % 32) == 0){
+            _build = -1;
+            if(_tempory_buffer[0] == 0x81){
+                _first_cluster = ((BitMapAllocationDescriptor*)_tempory_buffer)->FirstCluster;
+                clear_file_buffer();
+                break;
+            }
+        }
+    }
+
+    uint32_t _current_cluster = exFAT_attribute.FirstRootCluster;
+    uint8_t _test_byte = 0x0;
+    uint8_t _mask = 0x0;
+    read_cluster(_first_cluster);
+    while(1){
+        _test_byte = File.Buffer[(((int)_current_cluster - 2) / 8)];
+        _mask = (1ULL << ((_current_cluster - 2) % 8));
+        if(_test_byte & _mask){
+            _current_cluster++;
+        }
+        else{
+            clear_file_buffer();
+            print("Cluster find\r\n");
+            return _current_cluster;
+        }
+    }
+}
+
 
 FileInfo get_file_info(){
     uint8_t _tempory_buffer[32];
@@ -138,6 +179,18 @@ FileInfo get_file_info(){
     }
 
     return _file_info;
+}
+
+void searh_free_descriptor(){
+    File.Current_index = 0;
+    while(1){
+        if(File.Buffer[File.Current_index] == 0x00){
+            break;
+        }
+        else{
+            File.Current_index++;
+        }
+    }
 }
 
 int get_count_file(){

@@ -19,18 +19,12 @@ void IRQh_handel(){
                     }
                 }
                 else if((_IARv2 & 0x3FF) == 158){
-
-                    for(int _clear = 0; _clear < 8192; _clear++){
-                        Table_DAT_buffer[_clear] = 0x0;
+                    if(SD_Registers->NS_SD & (1ULL << 5)){
+                        IRQ_read();
                     }
-
-                    for(int _index = 0; _index < 8192; _index++){
-                        Table_DAT_buffer[_index] = SD_Registers->BDP_SD;
+                    else if(SD_Registers->NS_SD & (1ULL << 4)){
+                        //Тут будет функция, често-честно ^_^
                     }
-                    DAT_buffer = (uint8_t*)Table_DAT_buffer;
-
-                    SD_Registers->NS_SD &= ~(1ULL << 5);
-                    SD_Registers->NS_SD &= ~(1ULL << 1);   
                 }
             }  
             GICv2->GICC_EOIR = _IARv2;

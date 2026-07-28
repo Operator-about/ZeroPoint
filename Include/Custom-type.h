@@ -123,7 +123,7 @@ typedef struct{
     uint8_t RESERVE_1[18];
     volatile uint32_t FirstCluster;
     volatile uint64_t DataLength;
-}BitMapAllocationDescriptor;
+}__attribute__((packed))BitMapAllocationDescriptor;
 
 typedef struct{
     volatile uint8_t EntryType;

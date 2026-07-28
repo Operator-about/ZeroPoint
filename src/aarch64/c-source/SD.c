@@ -1,6 +1,7 @@
 #include<SD.h>
 
 SDCMD CMD;
+volatile uint32_t IRQ_DAT_buffer[8192];
 
 void CMD_send(CMDR _CMD){
     SD_Registers->ARG_SD = _CMD.arg;
@@ -30,6 +31,7 @@ void read_single_sector(uint32_t _sector){
     CMD.CMD17.arg |= _sector;
     CMD.CMD17.CMD = 0x0;
     CMD.CMD17.CMD &= ~(1ULL << 0);
+    CMD.CMD17.CMD &= ~(1ULL << 5);
     CMD.CMD17.CMD |= (1ULL << 1) | (1ULL << 4);
     CMD.CMD17.CMD |= (2ULL << 16) | (1ULL << 19) | (1ULL << 20) | (1ULL << 21) | (17ULL << 24);
     CMD_send(CMD.CMD17);
@@ -42,4 +44,18 @@ void SD_mode(){
     CMD.CMD13.CMD = 0x0;
     CMD.CMD13.CMD |= (2ULL << 16) | (1ULL << 19) | (1ULL << 20) | (13ULL << 24);
     CMD_send(CMD.CMD13);
+}
+
+void IRQ_read(){
+    for(int _clear = 0; _clear < 8192; _clear++){
+        IRQ_DAT_buffer[_clear] = 0x0;
+    }
+
+    for(int _index = 0; _index < 8192; _index++){
+        IRQ_DAT_buffer[_index] = SD_Registers->BDP_SD;
+    }
+    DAT_buffer = (uint8_t*)IRQ_DAT_buffer;
+
+    SD_Registers->NS_SD &= ~(1ULL << 5);
+    SD_Registers->NS_SD &= ~(1ULL << 1);  
 }

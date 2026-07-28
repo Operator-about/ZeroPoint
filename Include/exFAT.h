@@ -6,6 +6,7 @@
 
 extern FileBuffer File;
 extern exFATAttrubute exFAT_attribute;
+extern FileInfo CurrentFolder;
 
 //Физический уровень
 void init_exFAT();
@@ -15,13 +16,11 @@ uint32_t walk_FAT(uint32_t _cluster);
 int get_count_file();
 FileInfo get_file_info();
 void clear_file_buffer();
-void copy_current_folder();
+uint32_t walk_allocationbitmap();
 
 //Виртуальный уровень
 void open(char _name[]);
-void open_file(char _file_name[]);
-void create_file(uint8_t _file_name[]);
-void create_folder(uint8_t _folder_name[]);
-void change_root();
+void display_folder();
+void create();
 void parser(char _path[], uint8_t _name[]);
 void read_mode(uint32_t _cluster, FileInfo _info);
