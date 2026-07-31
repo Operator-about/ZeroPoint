@@ -51,20 +51,20 @@ void init_exFAT(){
     File.Current_index = 0;
     File.Buffer_index = 0;
 
-    clear_buffer_uint8(CurrentFolder.Name);
+    clear_buffer(CurrentFolder.Name);
 
     CurrentFolder.FirstCluster = exFAT_attribute.FirstRootCluster;
     CurrentFolder.FileAttribute = (1ULL << 4);
 
-    if(exFAT_attribute.SectorsPerCluster == 64){
-        SD_Registers->BC_SD = 0x0040;
-    }
+    SD_Registers->BC_SD = exFAT_attribute.SectorsPerCluster & 0x0000FFFF;
 }
 
 void read_cluster(uint32_t _cluster){
     volatile uint32_t _LBA_for_cluster = exFAT_attribute.DATALBA + ((_cluster - 2) * exFAT_attribute.SectorsPerCluster);
-    
+
+    sec_barrier(10);
     read_multi_sector(_LBA_for_cluster);
+    sec_barrier(10);
 
     for(int _data = 0; _data < (exFAT_attribute.BytsPerSector * exFAT_attribute.SectorsPerCluster); _data++){
         File.Buffer[File.Buffer_index] = DAT_buffer[_data];
@@ -179,18 +179,6 @@ FileInfo get_file_info(){
     }
 
     return _file_info;
-}
-
-void searh_free_descriptor(){
-    File.Current_index = 0;
-    while(1){
-        if(File.Buffer[File.Current_index] == 0x00){
-            break;
-        }
-        else{
-            File.Current_index++;
-        }
-    }
 }
 
 int get_count_file(){

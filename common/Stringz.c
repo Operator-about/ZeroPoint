@@ -109,3 +109,13 @@ void utf16_to_ASCII(uint8_t _utf16_buffer[], uint8_t _ASCII_out_buffer[]){
         _utf16_index++;
     }
 }
+
+void upper(uint8_t _buffer[]){
+    int _index = 0;
+    while(_buffer[_index] != 0x00){
+        if(_buffer[_index] >= 'a' && _buffer[_index] <= 'z'){
+            _buffer[_index] -= 32;
+        }
+        _index+=2;
+    }
+}

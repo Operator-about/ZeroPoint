@@ -21,6 +21,5 @@ uint32_t walk_allocationbitmap();
 //Виртуальный уровень
 void open(char _name[]);
 void display_folder();
-void create();
 void parser(char _path[], uint8_t _name[]);
 void read_mode(uint32_t _cluster, FileInfo _info);

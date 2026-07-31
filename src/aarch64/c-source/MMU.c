@@ -30,7 +30,17 @@ void MMU_init(){
     _registers.MAIR |= (4ULL << 0) | (68ULL << 8); //Указание nGnRE(0 индекс 0:7) и указание Normal N I/O(1 индекс 8:15)
     _registers.TTBR0 |= ((uint64_t)L0_table << 0); //Указание того, что поиск в MMU будет начинаться с L0 таблицы
     _registers.TCR |= (16ULL << 0); //Указание T0SZ 
-    _registers.TCR &= ~(3ULL << 32); //IPS
+    switch(MMU_IPS_check()){
+        case 32:
+            _registers.TCR &= ~(3ULL << 32);
+            break;
+        case 36:
+            _registers.TCR &= ~(3ULL << 32);
+            _registers.TCR |= (1ULL << 32);
+            break;
+        default:
+            break;
+    }
     /*
         T0SZ - указывает на то, с какой таблицы искать для VA - OA адрес.
         В данном случаи 16 записано, т.к. для 48-бит при 4КБ грануле 64-14 = 47 - с данного бита начинается осмотр MMU с L0 таблице

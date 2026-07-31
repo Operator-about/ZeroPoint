@@ -1,3 +1,5 @@
+#pragma once
+
 #include<Kernel-modules.h>
 
 void print(char _buffer[]);

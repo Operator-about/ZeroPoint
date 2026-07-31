@@ -4,6 +4,7 @@
 #include<Custom-type.h>
 #include<stdalign.h>
 #include<Stringz.h>
+#include<std.h>
 
 extern UART0 UART;
 extern GICCv2* GICv2;
@@ -12,7 +13,7 @@ extern Ring_buffer Rx_buffer;
 
 
 void VBAR_set();
-void clear_buffer(char _buffer[]);
+void clear_buffer(uint8_t _buffer[]);
 int GIC_version_check();
 int MMU_IPS_check();
 int get_number_length(int _number);

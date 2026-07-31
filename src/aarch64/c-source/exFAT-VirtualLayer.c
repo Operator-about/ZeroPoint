@@ -39,7 +39,7 @@ void open(char _name[]){
         if(compare_u16_to_ASCII(_info.Name, _current_name) == 1){ //Если найден(-а) нужный(-ая) файл/директория
             clear_file_buffer();
             read_mode(_info.FirstCluster, _info);
-            clear_buffer_uint8(_current_name);
+            clear_buffer(_current_name);
 
             if(_info.FileAttribute & (1ULL << 4)){ //Если директорий
                 if(_name[CurrentIndex] == '\0'){ //Если дальше нет пути
@@ -56,7 +56,7 @@ void open(char _name[]){
                 print("\r\n");
                 break;
             }
-            clear_buffer_uint8(_current_name);
+            clear_buffer(_current_name);
             parser(_name, _current_name);
         }
         else if(_index == get_count_file()){
@@ -66,12 +66,8 @@ void open(char _name[]){
     }
     
     clear_file_buffer();
-    clear_buffer_uint8(_current_name);
+    clear_buffer(_current_name);
     CurrentIndex = 0;
-}
-
-void create(){
-    walk_allocationbitmap();
 }
 
 void parser(char _path[], uint8_t _name[]){
@@ -105,8 +101,8 @@ void read_mode(uint32_t _cluster, FileInfo _info){
 void display_folder(){
     FileInfo _info;
     uint8_t _name_ASCII[260];
-    clear_buffer_uint8(_name_ASCII);
-    for(int _display = 0; _display < get_count_file(); _display++){
+    clear_buffer(_name_ASCII);
+    for(int _display = 0; _display <= get_count_file(); _display++){
         _info = get_file_info();
         if(_info.Name[0] == 0x0){
             break;
@@ -122,6 +118,7 @@ void display_folder(){
                 print(" - File\r\n");
                 break;
         }
-        clear_buffer_uint8(_name_ASCII);
+        clear_buffer(_name_ASCII);
     }
+    clear_file_buffer();
 }

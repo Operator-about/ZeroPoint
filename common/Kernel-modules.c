@@ -17,15 +17,7 @@ void VBAR_set(){
     __asm__("MSR VBAR_EL1, X0");
 }
 
-void clear_buffer(char _buffer[]){
-    int _index = 0;
-    while(_buffer[_index] != '\0'){
-        _buffer[_index] = '\0';
-        _index++;
-    }
-}
-
-void clear_buffer_uint8(uint8_t _buffer[]){
+void clear_buffer(uint8_t _buffer[]){
     int _index = 0;
     while(_buffer[_index] != 0x0){
         _buffer[_index] = 0x0;
@@ -33,10 +25,11 @@ void clear_buffer_uint8(uint8_t _buffer[]){
     }
 }
 
+
 int GIC_version_check(){
     uint64_t _GIC_version;
     __asm__("MRS %0, ID_AA64PFR0_EL1" : "=r"(_GIC_version));
-    if(_GIC_version & (0b0001 << 24)){
+    if(((_GIC_version >> 24) & 0xF) & (1ULL << 0)){
         return 3;
     }
     return 2;
@@ -44,14 +37,14 @@ int GIC_version_check(){
 
 int MMU_IPS_check(){
     uint64_t _MMU_IPS;
+
     __asm__("MRS %0, ID_AA64MMFR0_EL1" : "=r"(_MMU_IPS));
-    if(_MMU_IPS & (5ULL << 0)){
-        return 48;
+    if((_MMU_IPS & 0xF) == 0){
+        return 32;
     }
-    else if(_MMU_IPS & (1ULL << 0)){
+    else if((_MMU_IPS & 0xF) == 1){
         return 36;
     }
-    return 32;
 }
 
 void send(){

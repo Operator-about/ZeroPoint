@@ -10,7 +10,7 @@ void CMD_send(CMDR _CMD){
 
 void read_multi_sector(uint32_t _sector){
     CMD.CMD23.arg = 0x0;
-    CMD.CMD23.arg |= 64;
+    CMD.CMD23.arg |= exFAT_attribute.SectorsPerCluster & 0x0000FFFF;;
     CMD.CMD23.CMD = 0x0;
     CMD.CMD23.CMD |= (2ULL << 16) | (1ULL << 19) | (1ULL << 20) | (23ULL << 24);
     CMD_send(CMD.CMD23);
@@ -52,10 +52,9 @@ void IRQ_read(){
     }
 
     for(int _index = 0; _index < 8192; _index++){
+        __asm__("ISB");
+        __asm__("DSB SY");
         IRQ_DAT_buffer[_index] = SD_Registers->BDP_SD;
     }
-    DAT_buffer = (uint8_t*)IRQ_DAT_buffer;
-
-    SD_Registers->NS_SD &= ~(1ULL << 5);
-    SD_Registers->NS_SD &= ~(1ULL << 1);  
+    DAT_buffer = (uint8_t*)IRQ_DAT_buffer;  
 }
