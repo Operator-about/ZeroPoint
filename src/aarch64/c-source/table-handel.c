@@ -1,6 +1,9 @@
 #include<table-handel.h>
 
+static volatile uint32_t Table_DAT_buffer[8192];
+
 void IRQh_handel(){
+    __asm__("MSR DAIFSet, #2");
     switch(GIC_version_check()){
         case 2:
             volatile uint32_t _IARv2 = GICv2->GICC_IAR;
@@ -14,6 +17,16 @@ void IRQh_handel(){
                     }
                     else if(*UART.UART_MIS & (1ULL << 6)){
                         receving();
+                    }
+                }
+                else if((_IARv2 & 0x3FF) == 158){
+                    if(SD_Registers->NS_SD & (1ULL << 5)){
+                        IRQ_read();
+                        SD_Registers->NS_SD &= ~(1ULL << 5);
+                        SD_Registers->NS_SD &= ~(1ULL << 1);
+                    }
+                    else if(SD_Registers->NS_SD & (1ULL << 4)){
+                        //Тут будет функция, често-честно ^_^
                     }
                 }
             }  
@@ -40,4 +53,6 @@ void IRQh_handel(){
         default:
             break;
     }
+
+    __asm__("MSR DAIFClr, #2");
 }

@@ -13,6 +13,7 @@ void print(char _buffer[]){
     Tx_buffer.tail = 0;
     *UART.UART_IMSC = (1ULL << 5);
 }
+
 void input(char _save_buffer[]){
     while(*UART.UART_FR & (1ULL << 3)){
         __asm__("NOP");
@@ -45,6 +46,7 @@ void input(char _save_buffer[]){
     Rx_buffer.end = 0;
     Rx_buffer.tail = 0;
 }
+
 void println(char _buffer[]){
     
 }

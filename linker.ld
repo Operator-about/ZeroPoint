@@ -4,7 +4,6 @@ MEMORY{
     RAM(rwx) : ORIGIN = 0x00080000, LENGTH = 4096M
 }
 
-
 SECTIONS{
 
     . = ORIGIN(RAM);

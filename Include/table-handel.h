@@ -1,6 +1,8 @@
 #pragma once
 #include<Custom-type.h>
 #include<Kernel-modules.h>
+#include<Stringz.h>
+#include<SD.h>
 
 extern void Synct_handel();
 extern void IRQt_handel();
