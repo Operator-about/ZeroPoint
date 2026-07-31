@@ -13,7 +13,7 @@
 На данный момент доступно чтение файлов с **SD карты**, если SD карта отформатирована как **exFAT**
 
 # **Важная деталь**
-**Zero Point - полностью зависит от прошивок: ZeroPointFirmware**\
+**ZeroPoint - полностью зависит от прошивок: ZeroPointFirmware**\
 [**Скачать прошивки можно от сюда**](https://github.com/Operator-about/ZeroPointFirmware)
 
 # **Сборка:**
