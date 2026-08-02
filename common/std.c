@@ -1,7 +1,7 @@
 #include<std.h>
 
 void print(char _buffer[]){
-    while(*UART.UART_FR & (1ULL << 3)){
+    while(UARTPL011->UART_FR & (1ULL << 3)){
         __asm__("NOP");
     }
     clear_buffer(Tx_buffer.buffer);
@@ -11,16 +11,30 @@ void print(char _buffer[]){
         Tx_buffer.buffer[Tx_buffer.tail] = _buffer[Tx_buffer.tail];
     }
     Tx_buffer.tail = 0;
-    *UART.UART_IMSC = (1ULL << 5);
+
+    switch(OutJump->UART_Standart){
+        case 0x504C00B0:
+            UARTPL011->UART_IMSC = (1ULL << 5);
+            break;
+        default:
+            break;
+    }
 }
 
 void input(char _save_buffer[]){
-    while(*UART.UART_FR & (1ULL << 3)){
-        __asm__("NOP");
+    switch(OutJump->UART_Standart){
+        case 0x504C00B0:
+            while(UARTPL011->UART_FR & (1ULL << 3)){
+                __asm__("NOP");
+            }
+
+            UARTPL011->UART_IMSC |= (1ULL << 4);
+            UARTPL011->UART_IMSC |= (1ULL << 6);
+            break;
+        default:
+            break;
     }
 
-    *UART.UART_IMSC |= (1ULL << 4);
-    *UART.UART_IMSC |= (1ULL << 6);
     while(Rx_buffer.end == 0){
         __asm__("WFI");
         if(Rx_buffer.buffer[Rx_buffer.head] == '\r'){
@@ -31,9 +45,15 @@ void input(char _save_buffer[]){
         }
     }
 
-    *UART.UART_ICR = (1ULL << 6);
-    *UART.UART_IMSC &= ~(1ULL << 4);
-    *UART.UART_IMSC &= ~(1ULL << 6);
+    switch(OutJump->UART_Standart){
+        case 0x504C00B0:
+            UARTPL011->UART_ICR = (1ULL << 6);
+            UARTPL011->UART_IMSC &= ~(1ULL << 4);
+            UARTPL011->UART_IMSC &= ~(1ULL << 6);
+            break;
+        default:
+            break;
+    }
 
     Rx_buffer.buffer[Rx_buffer.head] = '\0';
     Rx_buffer.head--;

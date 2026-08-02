@@ -15,13 +15,16 @@ typedef struct{
 }GICCv2;
 
 typedef struct{
-    volatile uint32_t* UART_DR;
-    volatile uint32_t* UART_FR;
-    volatile uint32_t* UART_MIS;
-    volatile uint32_t* UART_IMSC;
-    volatile uint32_t* UART_ICR;
-    volatile uint32_t* UART_RIS;
-}UART0;
+    volatile uint32_t UART_DR;
+    uint32_t RESERVE_1[5];
+    volatile uint32_t UART_FR;
+    uint32_t RESERVE_2[6];
+    volatile uint32_t UART_IFLS;
+    volatile uint32_t UART_IMSC;
+    volatile uint32_t UART_RIS;
+    volatile uint32_t UART_MIS;
+    volatile uint32_t UART_ICR;
+}UARTPL011R;
 
 typedef struct{
     uint8_t buffer[SIZE]; //Буфер
@@ -161,3 +164,12 @@ typedef struct{
     int NameIndex;
     uint16_t FileAttribute;
 }FileInfo;
+
+typedef struct{
+    volatile uint64_t SD;
+    volatile uint64_t GICv2;
+    volatile uint64_t UART;
+    uint32_t UART_Standart;
+    int UART_ID;
+    int SD_ID;
+}JumpData;

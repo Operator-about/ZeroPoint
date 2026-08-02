@@ -194,9 +194,8 @@ int get_count_file(){
 }
 
 void clear_file_buffer(){
-    for(int _clear = 0; _clear < File.Buffer_index; _clear++){
+    for(int _clear = 0; _clear <= File.Buffer_index; _clear++){
         File.Buffer[_clear] = 0x0;
-        DAT_buffer[_clear] = 0x0;
     }
     File.Current_index = 0;
     File.Buffer_index = 0;

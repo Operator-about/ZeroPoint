@@ -10,7 +10,6 @@ void open(char _name[]){
     }
     FileInfo _info;
     
-    clear_file_buffer();
     if(_name[0] == '/'){ //Если путь файла начинается с точки монтирования
         //Обнуление текущей папки
         CurrentFolder.FirstCluster = exFAT_attribute.FirstRootCluster;
@@ -25,7 +24,7 @@ void open(char _name[]){
         CurrentIndex = 0;
     }
 
-    read_mode(CurrentFolder.FirstCluster, CurrentFolder);
+    read_cluster(CurrentFolder.FirstCluster);
     if(_name[1] == '\0'){ //Если дальше нет пути
         display_folder();
         clear_file_buffer();
@@ -38,7 +37,8 @@ void open(char _name[]){
         _info = get_file_info();
         if(compare_u16_to_ASCII(_info.Name, _current_name) == 1){ //Если найден(-а) нужный(-ая) файл/директория
             clear_file_buffer();
-            read_mode(_info.FirstCluster, _info);
+
+            read_cluster(_info.FirstCluster);
             clear_buffer(_current_name);
 
             if(_info.FileAttribute & (1ULL << 4)){ //Если директорий
@@ -67,6 +67,7 @@ void open(char _name[]){
     
     clear_file_buffer();
     clear_buffer(_current_name);
+    clear_buffer(_name);
     CurrentIndex = 0;
 }
 
