@@ -4,14 +4,18 @@
 #include<std.h>
 #include<SD.h>
 #include<exFAT.h>
+#include<PL011.h>
+#include<16550.h>
 
-UART0 UART;
 GICCv2* GICv2;
 SDR* SD_Registers;
 uint32_t SD;
 volatile uint8_t* DAT_buffer;
+JumpData* OutJump;
 
 int main(void){
+    __asm__("MOV %0, X10" : "=r"(OutJump));
+
     MMU_init();
 
     init_t_buffer();
@@ -19,27 +23,12 @@ int main(void){
     Rx_buffer.end = 0;
     Rx_buffer.tail = 0;
 
-    __asm__("MOV %0, X10" : "=r"(UART.UART_DR));
-    __asm__("MOV %0, X10" : "=r"(UART.UART_DR));
-    __asm__("MOV %0, X11" : "=r"(UART.UART_FR));
-    __asm__("MOV %0, X12" : "=r"(UART.UART_MIS));
-    __asm__("MOV %0, X13" : "=r"(UART.UART_IMSC));
-    __asm__("MOV %0, X14" : "=r"(UART.UART_RIS));
-    __asm__("MOV %0, X15" : "=r"(UART.UART_ICR));
-    if(GIC_version_check() == 2){
-        __asm__("MOV %0, X16" : "=r"(GICv2));
-    }
-    __asm__("MOV %0, X17" : "=r"(SD_Registers));
-    __asm__("MOV %0, X18" : "=r"(SD));
-    __asm__("ISB");
+
+    UARTPL011 = (UARTPL011R*)OutJump->UART;
+    GICv2 = (GICCv2*)OutJump->GICv2;
+    SD_Registers = (SDR*)OutJump->SD;
 
     __asm__("MOV X10, XZR");
-    __asm__("MOV X11, XZR");
-    __asm__("MOV X12, XZR");
-    __asm__("MOV X13, XZR");
-    __asm__("MOV X14, XZR");
-    __asm__("MOV X15, XZR");
-    __asm__("MOV X16, XZR");
 
     __asm__("ISB");
 

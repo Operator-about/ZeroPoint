@@ -11,20 +11,40 @@ uint64_t L2_index_address;
 void MMU_init(){
     L1_index_address = (uint64_t)0x00000000; //Указание нулевого адреса для правильного расчёта
     int _current_L1 = 0;
+    uint64_t _buffer[] = {OutJump->UART, OutJump->SD, OutJump->GICv2};
+    uint64_t _device_block_address = 0x0;
+
+    switch(min_uint64_t(_buffer)){
+        case 0x00000000 ... 0x3FFFFFFF:
+            _device_block_address = 0x00000000;
+            break;
+        case 0x40000000 ... 0x7FFFFFFF:
+            _device_block_address = 0x40000000;
+            break;
+        case 0x80000000 ... 0xBFFFFFFF:
+            _device_block_address = 0x80000000;
+            break;    
+        case 0xC0000000 ... 0xFFFFFFFF:
+            _device_block_address = 0xC0000000;
+            break;
+        default:
+            _device_block_address = 0x0;
+            break;
+    }    
+
     L0_table_descriptor_init();
-    for(int _L1 = 0; _L1 < 3; _L1++){
+    for(int _L1 = 0; _L1 <= 3; _L1++){
         L1_table_descriptor_init(_L1);
         for(int _L2 = 0; _L2 <= 511; _L2++){
-            L2_block_descriptor_NORMAL_init(_L2, _L1);
+            if(L1_index_address >= _device_block_address && L1_index_address <= (_device_block_address + 0x40000000)){
+                L2_table_descriptor_init(_L2, _L1);
+                L3_block_descriptor_DEVICE_init(_L2); 
+            }
+            else{
+                L2_block_descriptor_NORMAL_init(_L2, _L1);
+            }
         }
-        _current_L1++;
     }
-
-    for(int _L2 = 0; _L2 <= 511; _L2++){
-        L2_table_descriptor_init(_L2, _current_L1);
-        L3_block_descriptor_DEVICE_init(_L2);
-    }
-    L1_table_descriptor_init(3);
     MMU_registers _registers = {0};
 
     _registers.MAIR |= (4ULL << 0) | (68ULL << 8); //Указание nGnRE(0 индекс 0:7) и указание Normal N I/O(1 индекс 8:15)
@@ -46,7 +66,14 @@ void MMU_init(){
         В данном случаи 16 записано, т.к. для 48-бит при 4КБ грануле 64-14 = 47 - с данного бита начинается осмотр MMU с L0 таблице
         IPS - указывает битность дескриптора для таблиц L 
     */
-    _registers.TCR &= ~(3ULL << 14); //Указание, что используется гранула в 4КБ для страниц
+    switch(MMU_TG_check()){
+        case 4:
+            _registers.TCR &= ~(3ULL << 14); //Указание, что используется гранула в 4КБ для страниц
+            break;
+        default:
+            _registers.TCR &= ~(3ULL << 14);
+            break;
+    }
     _registers.TCR &= ~(3ULL << 12);
     _registers.TCR &= ~(3ULL << 10);
     _registers.TCR &= ~(3ULL << 8);

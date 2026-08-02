@@ -25,7 +25,6 @@ void clear_buffer(uint8_t _buffer[]){
     }
 }
 
-
 int GIC_version_check(){
     uint64_t _GIC_version;
     __asm__("MRS %0, ID_AA64PFR0_EL1" : "=r"(_GIC_version));
@@ -47,23 +46,14 @@ int MMU_IPS_check(){
     }
 }
 
-void send(){
-    *UART.UART_IMSC &= ~(1ULL << 5);
-    while(!(*UART.UART_FR & (1ULL << 5)) && Tx_buffer.tail <= Tx_buffer.head){
-        *UART.UART_DR = Tx_buffer.buffer[Tx_buffer.tail];
-        Tx_buffer.tail++;
-    }
-    if(Tx_buffer.tail < Tx_buffer.head){
-        *UART.UART_IMSC = (1ULL << 5);
-    }
-}
+int MMU_TG_check(){
+    uint64_t _MMU_TG;
 
-void receving(){
-    while(!(*UART.UART_FR & (1ULL << 4))){
-        Rx_buffer.head++;
-        Rx_buffer.buffer[Rx_buffer.head] = (uint8_t)(*UART.UART_DR);
+    __asm__("MRS %0, ID_AA64MMFR0_EL1" : "=r"(_MMU_TG));
+    _MMU_TG = ((_MMU_TG >> 28) & 0xF);
+    if((_MMU_TG & (0xF << 0)) == 0x0){
+        return 4;
     }
-    return;
 }
 
 void init_t_buffer(){
@@ -77,4 +67,18 @@ void sec_barrier(int _second){
     for(int _wait = 0; _wait < 60 * 60 * _second; _wait++){
         __asm__("NOP");
     }
+}
+
+uint64_t min_uint64_t(uint64_t _buffer[]){
+    int _index = 1;
+    uint64_t _current_uint64_t = _buffer[0];
+    while(_buffer[_index] != 0x0){
+        if(_buffer[_index] < _current_uint64_t){
+            _current_uint64_t = _buffer[_index];
+        }
+
+        _index++;
+    }
+
+    return _current_uint64_t;
 }
