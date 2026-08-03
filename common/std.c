@@ -47,7 +47,6 @@ void input(char _save_buffer[]){
 
     switch(OutJump->UART_Standart){
         case 0x504C00B0:
-            UARTPL011->UART_ICR = (1ULL << 6);
             UARTPL011->UART_IMSC &= ~(1ULL << 4);
             UARTPL011->UART_IMSC &= ~(1ULL << 6);
             break;

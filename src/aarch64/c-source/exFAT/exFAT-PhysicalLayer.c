@@ -181,6 +181,22 @@ FileInfo get_file_info(){
     return _file_info;
 }
 
+uint16_t name_compare_hash(uint8_t _name[]){
+    uint16_t _summ = _name[0];
+    int _index = 1;
+    while(_name[_index] != 0x00){
+        if((_summ % 2) == 0){
+            _summ = ((_summ / 2) + _name[_index]);
+        }
+        else{
+            _summ = (((_summ / 2) + 32768) + _name[_index]);
+        }
+        _index++;
+    }
+
+    return _summ;
+}
+
 int get_count_file(){
     int _count = 0;
 
@@ -196,6 +212,7 @@ int get_count_file(){
 void clear_file_buffer(){
     for(int _clear = 0; _clear <= File.Buffer_index; _clear++){
         File.Buffer[_clear] = 0x0;
+        //DAT_buffer[_clear] = 0x0;
     }
     File.Current_index = 0;
     File.Buffer_index = 0;
