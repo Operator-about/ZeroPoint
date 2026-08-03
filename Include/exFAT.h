@@ -17,6 +17,7 @@ int get_count_file();
 FileInfo get_file_info();
 void clear_file_buffer();
 uint32_t walk_allocationbitmap();
+uint16_t name_compare_hash(uint8_t _name[]);
 
 //Виртуальный уровень
 void open(char _name[]);
