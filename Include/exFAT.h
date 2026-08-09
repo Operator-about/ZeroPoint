@@ -21,6 +21,8 @@ uint16_t name_compare_hash(uint8_t _name[]);
 
 //Виртуальный уровень
 void open(char _name[]);
+void open_folder();
+void open_file();
 void display_folder();
 void parser(char _path[], uint8_t _name[]);
-void read_mode(uint32_t _cluster, FileInfo _info);
+void read_mode(uint32_t _cluster, FileInfo _info, int _display);

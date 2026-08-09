@@ -10,7 +10,6 @@
 GICCv2* GICv2;
 SDR* SD_Registers;
 uint32_t SD;
-volatile uint8_t* DAT_buffer;
 JumpData* OutJump;
 
 int main(void){
@@ -36,15 +35,12 @@ int main(void){
     char _keyboard_buffer_input[100];
     
     init_exFAT();
+    print("[^]exFAT init stage done\r\n");
 
     char _info_buffer[100];
-    uint8_t _current_folder_name[260];
-    clear_buffer(_current_folder_name);
     clear_buffer(_info_buffer);
     while(1){
         init_t_buffer();
-        utf16_to_ASCII(CurrentFolder.Name, _current_folder_name);
-        print(_current_folder_name);
         print("@>>");
 
         input(_keyboard_buffer_input);
@@ -67,11 +63,6 @@ int main(void){
             clear_buffer(_keyboard_buffer_input);
         }
         else if(compare_s(_keyboard_buffer_input, "open") == 1){
-            print("Current dir:/");
-            print(_current_folder_name);
-            clear_buffer(_current_folder_name);
-            print("\r\n");
-
             print("Input full name:");
             clear_buffer(_keyboard_buffer_input);
             input(_keyboard_buffer_input);

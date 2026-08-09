@@ -69,3 +69,23 @@ void input(char _save_buffer[]){
 void println(char _buffer[]){
     
 }
+
+void printh64(uint64_t _src){
+    while(UARTPL011->UART_FR & (1ULL << 3)){
+        __asm__("NOP");
+    }
+
+    for(int _index = 7; _index >= 0; _index--){
+        printh((_src >> (8 * _index)) & 0xFF);
+    }
+
+    UARTPL011->UART_DR = '\n';
+    UARTPL011->UART_DR = '\r';
+}
+
+void printh(uint8_t _src){
+    char _chars[] = {"0123456789ABCDEF"};
+
+    UARTPL011->UART_DR = _chars[((_src & 0xF0) >> 4)];
+    UARTPL011->UART_DR = _chars[_src & 0x0F];
+}

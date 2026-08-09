@@ -23,14 +23,19 @@ void clear_buffer(uint8_t _buffer[]){
         _buffer[_index] = 0x0;
         _index++;
     }
+
+    _index = 0;
 }
 
 int GIC_version_check(){
     uint64_t _GIC_version;
     __asm__("MRS %0, ID_AA64PFR0_EL1" : "=r"(_GIC_version));
     if(((_GIC_version >> 24) & 0xF) & (1ULL << 0)){
+        
+        _GIC_version = 0x0;
         return 3;
     }
+    _GIC_version = 0x0;
     return 2;
 }
 
@@ -39,9 +44,11 @@ int MMU_IPS_check(){
 
     __asm__("MRS %0, ID_AA64MMFR0_EL1" : "=r"(_MMU_IPS));
     if((_MMU_IPS & 0xF) == 0){
+        _MMU_IPS = 0x0;
         return 32;
     }
     else if((_MMU_IPS & 0xF) == 1){
+        _MMU_IPS = 0x0;
         return 36;
     }
 }
@@ -57,6 +64,16 @@ int MMU_TG_check(){
 }
 
 void init_t_buffer(){
+    switch(OutJump->UART_Standart){
+        case 0x504C00B0:
+            while(UARTPL011->UART_FR & (1ULL << 3)){
+                __asm__("NOP");
+            }
+            break;
+        default:
+            break;
+    }
+
     for(int _index = 0; _index < SIZE; _index++){
         Rx_buffer.buffer[_index] = '\0';
         Tx_buffer.buffer[_index] = '\0';
