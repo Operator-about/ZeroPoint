@@ -7,3 +7,12 @@ int power_two(int _src){
     }
     return _result;
 }
+
+int get_number_length(int _number){
+    int _out = 0;
+    while(_number > 0){
+        _out++;
+        _number = _number / 10;
+    }
+    return _out;
+}

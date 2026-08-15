@@ -31,16 +31,13 @@ int compare_s(uint8_t _comble_buffer[], char _src_buffer[]){
 }
 
 void itos(int _number, char _out_buffer[]){
-    int _index = 0;
     int _size_number = get_number_length(_number);
     _size_number--;
     char _buffer = '\0';
-    while((_number % 10) > 0){
-        if((_number % 10) <= 9){
-            _buffer = (char)((_number % 10) + '0'); 
-            _out_buffer[_size_number - _index] = _buffer;
-            _index++;
-        }
+    while(_number > 0){
+        _buffer = (char)((_number % 10) + '0');
+        _out_buffer[_size_number] = _buffer;
+        _size_number--;
         _number = _number / 10;
     }
 }

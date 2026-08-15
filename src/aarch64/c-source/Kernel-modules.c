@@ -3,15 +3,6 @@
 Ring_buffer Tx_buffer;
 Ring_buffer Rx_buffer;
 
-int get_number_length(int _number){
-    int _out = 0;
-    while((_number % 10) > 0){
-        _out++;
-        _number = _number / 10;
-    }
-    return _out;
-}
-
 void VBAR_set(){
     __asm__("ADR X0, vector_table_center");
     __asm__("MSR VBAR_EL1, X0");
@@ -63,26 +54,15 @@ int MMU_TG_check(){
     }
 }
 
-void init_t_buffer(){
-    switch(OutJump->UART_Standart){
-        case 0x504C00B0:
-            while(UARTPL011->UART_FR & (1ULL << 3)){
-                __asm__("NOP");
-            }
-            break;
-        default:
-            break;
-    }
-
-    for(int _index = 0; _index < SIZE; _index++){
-        Rx_buffer.buffer[_index] = '\0';
-        Tx_buffer.buffer[_index] = '\0';
-    }
-}
-
 void sec_barrier(int _second){
     for(int _wait = 0; _wait < 60 * 60 * _second; _wait++){
         __asm__("NOP");
+    }
+}
+
+void uint32_t_build(uint32_t* _variable, uint8_t _data[]){
+    for(int _build = 0; _build < 4; _build++){
+        *_variable |= (_data[_build] << (8 * _build));
     }
 }
 

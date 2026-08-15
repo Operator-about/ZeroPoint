@@ -1,5 +1,4 @@
 #pragma once
-#define SIZE 4096
 
 #include<stdint.h>
 #include<string.h>
@@ -27,7 +26,7 @@ typedef struct{
 }UARTPL011R;
 
 typedef struct{
-    uint8_t buffer[SIZE]; //Буфер
+    uint8_t* buffer; //Буфер
     volatile int head; //Размер буфера
     volatile int tail; //Текущая позиция
     volatile int end; //Означет, что передача закончена
@@ -68,7 +67,7 @@ typedef struct{
     volatile uint16_t ACMDE_SD;
     volatile uint16_t HC2_SD;
     volatile uint64_t CB_SD;
-}SDR;
+}SDAR;
 
 typedef struct{
     CMDR CMD0;
@@ -174,6 +173,36 @@ typedef struct{
     volatile uint64_t GICv2;
     volatile uint64_t UART;
     uint32_t UART_Standart;
+    uint32_t SD_Standart;
     int UART_ID;
     int SD_ID;
 }JumpData;
+
+typedef struct{
+    void (*IRQ_handel)();
+    void (*wait_transmition)();
+    void (*Register_init)();
+    void (*IRQ_Rx_init)();
+    void (*IRQ_Tx_init)();
+    void (*IRQ_disable)();
+}HALUARTF;
+
+typedef struct{
+    uint64_t UARTAddress;
+    const HALUARTF* UARTF;
+}HALUART;
+
+typedef struct{
+    void (*IRQ_read)();
+    void (*CMD_send)(CMDR _CMD);
+    void (*single_read)(uint32_t _sector);
+    void (*multi_read)(uint32_t _sector);
+    void (*block_init)();
+    void (*register_init)();
+    void (*wait_command)();
+}HALSDF;
+
+typedef struct{
+    uint64_t SDAddress;
+    const HALSDF* SDF;
+}HALSD;

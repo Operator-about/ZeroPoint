@@ -1,6 +1,7 @@
 #pragma once
 #include<Custom-type.h>
 #include<Kernel-modules.h>
+#include<Mathz.h>
 int length_s(char _buffer[]);
 int compare_s(uint8_t _compe_buffer[], char _src_buffer[]);
 void itos(int _number, char _out_buffer[]);

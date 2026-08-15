@@ -8,23 +8,16 @@ uint32_t init_MBR(){
     MBR _MBR;
     uint32_t _LBA = 0x0;
     exFAT* exFATp;
-    char _info[100];
-    clear_buffer(_info);
 
-    print("[^]MBR init\r\n");
-    read_single_sector(0);
+    SD.SDF->single_read(0);
     _MBR = *(MBR*)&File.Buffer;
-    if(_MBR.RESERVE_2[0] == 0x55 || _MBR.RESERVE_2[1] == 0xAA){
-        print("Signature reciving\r\n");
-    }
 
     while(_partion_index < 4){
         _LBA = *(uint32_t*)&_MBR.PartionsRecords[_partion_index].StartLBA;
 
-        read_single_sector(_LBA);
+        SD.SDF->single_read(_LBA);
         exFATp = (exFAT*)&File.Buffer;
         if(compare_s(exFATp->FileSystemName, "EXFAT   ") == 1){
-            print("exFAT find\r\n");
             break;
         }
         _LBA = 0x0;
@@ -38,7 +31,7 @@ void init_exFAT(){
     uint32_t _LBA = 0x0;
     _LBA = init_MBR();
 
-    read_single_sector(_LBA);
+    SD.SDF->single_read(_LBA);
     exFAT* _exFATp = (exFAT*)File.Buffer;
 
     exFAT_attribute.DATALBA = _LBA + _exFATp->ClusterHeapOffset;
@@ -46,33 +39,24 @@ void init_exFAT(){
     exFAT_attribute.BytsPerSector = (uint32_t)power_two((int)_exFATp->BytsPerSector);
     exFAT_attribute.SectorsPerCluster = (uint32_t)power_two((int)_exFATp->SectorsPerCluster);
     exFAT_attribute.FirstRootCluster = _exFATp->FirstRootCluster;
-    exFAT_attribute.CurrentRoot = 0;
-
     clear_buffer(CurrentFolder.Name);
 
     CurrentFolder.FirstCluster = exFAT_attribute.FirstRootCluster;
     CurrentFolder.FileAttribute = (1ULL << 4);
-
-    SD_Registers->BC_SD = 64;
 }
 
 void read_cluster(uint32_t _cluster){
     volatile uint32_t _LBA_for_cluster = exFAT_attribute.DATALBA + ((_cluster - 2) * exFAT_attribute.SectorsPerCluster);
 
-    read_multi_sector(_LBA_for_cluster);
+    SD.SDF->multi_read(_LBA_for_cluster);
 }
 
 uint32_t walk_FAT(uint32_t _cluster){
-    if(exFAT_attribute.CurrentRoot == exFAT_attribute.FirstRootCluster){
-        exFAT_attribute.CurrentRoot = 0;
-    }
-    uint32_t _LBA_for_cluster_FAT = exFAT_attribute.FATLBA + (((exFAT_attribute.CurrentRoot + _cluster) * 4) / exFAT_attribute.BytsPerSector);
-    read_single_sector(_LBA_for_cluster_FAT);
+    uint32_t _LBA_for_cluster_FAT = exFAT_attribute.FATLBA + ((_cluster * 4) / exFAT_attribute.BytsPerSector);
+    SD.SDF->single_read(_LBA_for_cluster_FAT);
 
     uint32_t _tempory_cluster = 0x0;
-    for(int _build = 0; _build < 4; _build++){
-        _tempory_cluster |= ((uint32_t)DAT_buffer[((((exFAT_attribute.CurrentRoot + _cluster) * 4) % exFAT_attribute.BytsPerSector) + _build)] << (8 * _build));
-    }
+    _tempory_cluster = *(uint32_t*)&File.Buffer[((_cluster * 4) % exFAT_attribute.BytsPerSector)];
 
     if(_tempory_cluster >= 0xFFFFFFF8 && _tempory_cluster <= 0xFFFFFFFF){
         return 0xFFFFFFFF;
@@ -96,7 +80,6 @@ uint32_t walk_allocationbitmap(){
             _build = -1;
             if(_tempory_buffer[0] == 0x81){
                 _first_cluster = ((BitMapAllocationDescriptor*)_tempory_buffer)->FirstCluster;
-                //clear_file_buffer();
                 break;
             }
         }
@@ -174,8 +157,6 @@ FileInfo get_file_info(){
 uint16_t name_compare_hash(uint8_t _name[]){
     uint16_t _summ = _name[0];
     int _index = 1;
-    char _buffer[100];
-    clear_buffer(_buffer);
 
     while(_name[_index] != 0x00){
         if((_summ % 2) == 0){
@@ -186,11 +167,62 @@ uint16_t name_compare_hash(uint8_t _name[]){
         }
         _index++;
     }
-    itos(_summ, _buffer);
-    print(_buffer);
-    print("\r\n");
 
     return _summ;
+}
+
+uint16_t summ(uint8_t _buffer[]){
+    uint16_t _summ = _buffer[0];
+
+    for(int _index = 0; _index < 96; _index++){
+        if(_index == 2 || _index == 3){
+            continue;
+        }
+        else{
+            if((_summ % 2) == 0){
+                _summ = ((_summ / 2) + _buffer[_index]);
+            }
+            else{
+                _summ = (((_summ / 2) + 32768) + _buffer[_index]);
+            }
+        }
+    }
+
+    return _summ;
+}
+
+uint16_t name_hash(uint8_t _name[]){
+    uint16_t _summ = _name[0];
+    
+    for(int _index = 0; _index < 30; _index++){
+        if((_summ % 2) == 0){
+            _summ = ((_summ / 2) + _name[_index]);
+        }
+        else{
+            _summ = (((_summ / 2) + 32768) + _name[_index]);
+        }
+    }
+}
+
+void create_descriptors_file(){
+    uint8_t _buffer[96];
+    uint8_t _name[96];
+    for(int _clear = 0; _clear < 96; _clear++){
+        _buffer[_clear] = 0x0;
+        _name[_clear] = 0x0;
+    }
+
+    _buffer[0] = 0x85;
+    _buffer[1] = 2;
+
+    _buffer[33] = 0xC0;
+    _buffer[35] = 5;
+    *(uint16_t*)&_buffer[36] = name_hash(_name);
+
+    _buffer[65] = 0xC1;
+    for(int _copy = 0; _copy < 30; _copy++){
+        _buffer[67 + _copy] = _name[_copy];
+    }
 }
 
 int get_count_file(){

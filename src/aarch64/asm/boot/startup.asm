@@ -26,6 +26,10 @@ start:
     LDR X0, =vector_table_center
     MSR VBAR_EL1, X0
 
+    MRS X0, SCTLR_EL1
+    ORR X0, X0, #(1ULL << 1)
+    MSR SCTLR_EL1, X0
+
     ERET
 .section .text
 .global main

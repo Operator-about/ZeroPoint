@@ -9,18 +9,11 @@ void IRQh_handel(){
             if((_IARv2 & 0x3FF) < 1022){
                 if((_IARv2 & 0x3FF) == OutJump->UART_ID){
                     if(OutJump->UART_Standart == 0x504C00B0){
-                        irq_switch_pl011();
+                        UART.UARTF->IRQ_handel();
                     }
                 }
                 else if((_IARv2 & 0x3FF) == OutJump->SD_ID){
-                    if(SD_Registers->NS_SD & (1ULL << 5)){
-                        IRQ_read();
-                        SD_Registers->NS_SD |= (1ULL << 5);
-                        SD_Registers->NS_SD |= (1ULL << 1);
-                    }
-                    else if(SD_Registers->NS_SD & (1ULL << 4)){
-                        //Тут будет функция, често-честно ^_^
-                    }
+                    SD.SDF->IRQ_read();
                 }
             }
             GICv2->GICC_EOIR = _IARv2;
@@ -46,19 +39,5 @@ void IRQh_handel(){
 }
 
 void Synch_handel(){
-    uint64_t ESR = 0x0;
-    uint64_t FAR = 0x0;
-    uint64_t ELR = 0x0;
-    uint64_t PC = 0x0;
-
-    __asm__("MRS %0, ESR_EL1" : "=r"(ESR));
-    __asm__("MRS %0, FAR_EL1" : "=r"(FAR));
-    __asm__("MRS %0, ELR_EL1" : "=r"(ELR));
-
-    printh64(ESR);
-    printh64((ESR >> 26));
-    printh64(FAR);
-    printh64(ELR);
-
-    sec_barrier(100);
+    UARTPL011->UART_DR = 'L';
 }
