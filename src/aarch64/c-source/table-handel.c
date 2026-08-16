@@ -13,7 +13,9 @@ void IRQh_handel(){
                     }
                 }
                 else if((_IARv2 & 0x3FF) == OutJump->SD_ID){
-                    SD.SDF->IRQ_read();
+                    if(OutJump->SD_Standart == 0x5354414E){
+                        SD.SDF->IRQ_read();
+                    } 
                 }
             }
             GICv2->GICC_EOIR = _IARv2;
@@ -25,8 +27,13 @@ void IRQh_handel(){
             if(_IARv3 < 1022){
                 if(_IARv3 == OutJump->UART_ID){
                     if(OutJump->UART_Standart == 0x504C00B0){
-                        irq_switch_pl011();
+                        UART.UARTF->IRQ_handel();
                     }
+                }
+                else if(_IARv3 == OutJump->SD_ID){
+                    if(OutJump->SD_Standart == 0x5354414E){
+                        SD.SDF->IRQ_read();
+                    }   
                 }
             }
             __asm__("MSR ICC_EOIR1_EL1, %0" : :"r"(_IARv3));
@@ -36,8 +43,4 @@ void IRQh_handel(){
     }
 
     __asm__("MSR DAIFClr, #2");
-}
-
-void Synch_handel(){
-    UARTPL011->UART_DR = 'L';
 }

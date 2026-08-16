@@ -3,14 +3,14 @@
 #include<Stringz.h>
 #include<SD.h>
 #include<Mathz.h>
+#include<MBR.h>
+#include<UART.h>
 
-extern FileBuffer File;
 extern exFATAttrubute exFAT_attribute;
 extern FileInfo CurrentFolder;
 
 //Физический уровень
 void init_exFAT();
-uint32_t init_MBR();
 void read_cluster(uint32_t _cluster);
 uint32_t walk_FAT(uint32_t _cluster);
 int get_count_file();

@@ -26,6 +26,17 @@ typedef struct{
 }UARTPL011R;
 
 typedef struct{
+    volatile uint32_t UART_TRD;
+    volatile uint32_t UART_DEI;
+    volatile uint32_t UART_IIF;
+    volatile uint32_t UART_LCR;
+    volatile uint32_t UART_MCR;
+    volatile uint32_t UART_LSR;
+    uint32_t RESERVE_1[22];
+    volatile uint32_t UART_FAR;
+}UART165050R;
+
+typedef struct{
     uint8_t* buffer; //Буфер
     volatile int head; //Размер буфера
     volatile int tail; //Текущая позиция
@@ -99,7 +110,7 @@ typedef struct{
 
 typedef struct{
     uint8_t RESERVE_1[3];
-    uint8_t FileSystemName[8];
+    volatile uint8_t FileSystemName[8];
     volatile uint8_t MustZero[53];
     uint8_t RESERVE_2[16];
     volatile uint32_t FATOffset;

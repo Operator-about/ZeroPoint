@@ -1,41 +1,13 @@
 #include<exFAT.h>
 
-FileBuffer File;
 exFATAttrubute exFAT_attribute;
 
-uint32_t init_MBR(){
-    int _partion_index = 0;
-    MBR _MBR;
-    uint32_t _LBA = 0x0;
-    exFAT* exFATp;
-
-    SD.SDF->single_read(0);
-    _MBR = *(MBR*)&File.Buffer;
-
-    while(_partion_index < 4){
-        _LBA = *(uint32_t*)&_MBR.PartionsRecords[_partion_index].StartLBA;
-
-        SD.SDF->single_read(_LBA);
-        exFATp = (exFAT*)&File.Buffer;
-        if(compare_s(exFATp->FileSystemName, "EXFAT   ") == 1){
-            break;
-        }
-        _LBA = 0x0;
-        _partion_index++;
-    }
-
-    return _LBA;
-}
-
 void init_exFAT(){
-    uint32_t _LBA = 0x0;
-    _LBA = init_MBR();
-
-    SD.SDF->single_read(_LBA);
+    SD.SDF->single_read(LBA);
     exFAT* _exFATp = (exFAT*)File.Buffer;
 
-    exFAT_attribute.DATALBA = _LBA + _exFATp->ClusterHeapOffset;
-    exFAT_attribute.FATLBA = _LBA + _exFATp->FATOffset;
+    exFAT_attribute.DATALBA = LBA + _exFATp->ClusterHeapOffset;
+    exFAT_attribute.FATLBA = LBA + _exFATp->FATOffset;
     exFAT_attribute.BytsPerSector = (uint32_t)power_two((int)_exFATp->BytsPerSector);
     exFAT_attribute.SectorsPerCluster = (uint32_t)power_two((int)_exFATp->SectorsPerCluster);
     exFAT_attribute.FirstRootCluster = _exFATp->FirstRootCluster;

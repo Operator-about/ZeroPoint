@@ -6,11 +6,7 @@
 #include<Stringz.h>
 #include<std.h>
 
-extern HALUART UART;
-extern HALSD SD;
 extern GICCv2* GICv2;
-extern Ring_buffer Tx_buffer;
-extern Ring_buffer Rx_buffer;
 extern JumpData* OutJump;
 
 void VBAR_set();

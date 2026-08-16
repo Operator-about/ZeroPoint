@@ -1,6 +1,7 @@
 #include<SD.h>
 
 SDCMD CMD;
+FileBuffer File;
 
 void read_multi_sector(uint32_t _sector){
     SD.SDF->block_init();

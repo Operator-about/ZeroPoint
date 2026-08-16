@@ -4,9 +4,8 @@
 #include<std.h>
 #include<SD.h>
 #include<exFAT.h>
-#include<PL011.h>
-#include<16550.h>
-#include<SD-Standart.h>
+#include<UART.h>
+#include<MBR.h>
 
 GICCv2* GICv2;
 JumpData* OutJump;
@@ -20,10 +19,13 @@ int main(void){
 
     UART.UARTAddress = OutJump->UART;
     switch(OutJump->UART_Standart){
-        case 0x504C00B0:
+        case 0x504C00B0: //PL011
             UART.UARTF = &UARTPL011F;
             UART.UARTF->Register_init();
             break;
+        case 0x10323200: //165050
+            UART.UARTF = &UART165050F;
+            UART.UARTF->Register_init();
         default:
             break;
     }
@@ -53,6 +55,8 @@ int main(void){
     __asm__("MSR DAIFClr, #2");
     char _keyboard_buffer_input[100];
 
+    init_MBR();
+    get_LBA_for_exFAT();
     init_exFAT();
     print("[^]exFAT init stage done\r\n");
 
@@ -77,7 +81,7 @@ int main(void){
             print("//___ ||____ ||     ||___||||     ||___|| | ||   || |___ \r\n");
             print("=========================================================\r\n");
             print("Kernel: v0.0.3\r\n");
-            print("Build date: 15.08.2026\r\n");
+            print("Build date: 16.08.2026\r\n");
         }
         else if(compare_s(_keyboard_buffer_input, "help") == 1){
             print("Attention! This list command work only this terminal:\r\n");

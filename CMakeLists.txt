@@ -16,7 +16,9 @@ ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/SD/SD-Standart.c
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/Kernel-modules.c
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/exFAT/exFAT-PhysicalLayer.c
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/UART/PL011.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/UART/165050.c
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/exFAT/exFAT-VirtualLayer.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/exFAT/MBR.c
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/asm/boot/table-vector.asm
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/asm/boot/startup.asm)
 
