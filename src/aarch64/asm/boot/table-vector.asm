@@ -1,6 +1,7 @@
 .section .vectors, "ax", %progbits
 .global vector_table_center
 .global IRQh_handel 
+.global Synch_handel
 
 //Должна быть выровнена по 2КБ
 .align 11

@@ -1,5 +1,4 @@
 #pragma once
-#define SIZE 4096
 
 #include<stdint.h>
 #include<string.h>
@@ -27,7 +26,18 @@ typedef struct{
 }UARTPL011R;
 
 typedef struct{
-    uint8_t buffer[SIZE]; //Буфер
+    volatile uint32_t UART_TRD;
+    volatile uint32_t UART_DEI;
+    volatile uint32_t UART_IIF;
+    volatile uint32_t UART_LCR;
+    volatile uint32_t UART_MCR;
+    volatile uint32_t UART_LSR;
+    uint32_t RESERVE_1[22];
+    volatile uint32_t UART_FAR;
+}UART165050R;
+
+typedef struct{
+    uint8_t* buffer; //Буфер
     volatile int head; //Размер буфера
     volatile int tail; //Текущая позиция
     volatile int end; //Означет, что передача закончена
@@ -46,7 +56,7 @@ typedef struct{
 }CMDR;
 
 typedef struct{
-    uint32_t RESERVE_1[1];
+    volatile uint32_t DMA_SD;
     volatile uint16_t BS_SD;
     volatile uint16_t BC_SD;
     volatile uint32_t ARG_SD;
@@ -65,10 +75,29 @@ typedef struct{
     volatile uint16_t NSE_SD;
     volatile uint16_t ERSE_SD;
     volatile uint16_t NSIE_SD;
-    uint16_t RESERVE_6[2];
+    volatile uint16_t ACMDE_SD;
     volatile uint16_t HC2_SD;
     volatile uint64_t CB_SD;
-}SDR;
+}SDAR;
+
+typedef struct{
+    volatile uint32_t CTLR_SD;
+    volatile uint32_t PWC_SD;
+    volatile uint32_t CLKDIV_SD;
+    volatile uint32_t CLKS_SD;
+    volatile uint32_t CLKE_SD;
+    volatile uint32_t TIME_SD;
+    uint32_t RESERVE_1[1];
+    volatile uint32_t BS_SD;
+    volatile uint32_t BC_SD;
+    volatile uint32_t IM_SD;
+    volatile uint32_t ARG_SD;
+    volatile uint32_t CMD_SD;
+    volatile uint32_t RESP_SD[4];
+    volatile uint32_t IMS_SD;
+    uint32_t RESERVE_2[111];
+    volatile uint32_t BDP_SD;
+}SDRR;
 
 typedef struct{
     CMDR CMD0;
@@ -80,6 +109,7 @@ typedef struct{
     CMDR CMD7;
     CMDR CMD17;
     CMDR CMD18;
+    CMDR CMD12;
     CMDR CMD23;
     CMDR CMD13;
     CMDR ACMD6;
@@ -99,8 +129,9 @@ typedef struct{
 
 typedef struct{
     uint8_t RESERVE_1[3];
-    uint8_t FileSystemName[8];
-    uint8_t RESERVE_2[69];
+    volatile uint8_t FileSystemName[8];
+    volatile uint8_t MustZero[53];
+    uint8_t RESERVE_2[16];
     volatile uint32_t FATOffset;
     uint8_t RESERVE_3[4];
     volatile uint32_t ClusterHeapOffset;
@@ -109,6 +140,8 @@ typedef struct{
     uint8_t RESERVE_5[8];
     volatile uint8_t BytsPerSector;
     volatile uint8_t SectorsPerCluster;
+    uint8_t RESERVE_6[400];
+    volatile uint8_t Signature[2];
 } __attribute__((packed)) exFAT;
 
 typedef struct{
@@ -150,7 +183,7 @@ typedef struct{
 }FileNameDescriptor;
 
 typedef struct{
-    uint8_t* Buffer;
+    uint8_t Buffer[32768];
     int Buffer_index;
     int Current_index;
 }FileBuffer;
@@ -170,6 +203,36 @@ typedef struct{
     volatile uint64_t GICv2;
     volatile uint64_t UART;
     uint32_t UART_Standart;
+    uint32_t SD_Standart;
     int UART_ID;
     int SD_ID;
 }JumpData;
+
+typedef struct{
+    void (*IRQ_handel)();
+    void (*wait_transmition)();
+    void (*Register_init)();
+    void (*IRQ_Rx_init)();
+    void (*IRQ_Tx_init)();
+    void (*IRQ_disable)();
+}HALUARTF;
+
+typedef struct{
+    uint64_t UARTAddress;
+    const HALUARTF* UARTF;
+}HALUART;
+
+typedef struct{
+    void (*IRQ_read)();
+    void (*CMD_send)(CMDR _CMD);
+    void (*single_read)(uint32_t _sector);
+    void (*multi_read)(uint32_t _sector);
+    void (*block_init)();
+    void (*register_init)();
+    void (*wait_command)();
+}HALSDF;
+
+typedef struct{
+    uint64_t SDAddress;
+    const HALSDF* SDF;
+}HALSD;

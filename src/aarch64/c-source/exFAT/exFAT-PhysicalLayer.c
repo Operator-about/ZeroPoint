@@ -1,88 +1,34 @@
 #include<exFAT.h>
 
-FileBuffer File;
 exFATAttrubute exFAT_attribute;
 
-uint32_t init_MBR(){
-    int _partion_index = 0;
-    MBR* _MBR;
-    uint32_t _LBA = 0x0;
-    exFAT* exFATp;
-
-    print("[^]MBR init\r\n");
-    while(_partion_index < 4){
-        read_single_sector(0);
-        _MBR = (MBR*)DAT_buffer;
-        for(int _LBA_build = 0; _LBA_build < 4; _LBA_build++){
-            _LBA |= ((uint32_t)_MBR->PartionsRecords[_partion_index].StartLBA[_LBA_build] << (8 * _LBA_build));
-        }
-
-        read_single_sector(_LBA);
-        exFATp = (exFAT*)DAT_buffer;
-        if(compare_s(exFATp->FileSystemName, "EXFAT   ") == 1){
-            print("[^]exFAT found\r\n");
-            break;
-        }
-
-        _partion_index++;
-        _LBA = 0;
-    }
-
-    return _LBA;
-}
-
 void init_exFAT(){
-    SD_Registers->SR_SD |= (1ULL << 2);
-    sec_barrier(50);
+    SD.SDF->single_read(LBA);
+    exFAT* _exFATp = (exFAT*)File.Buffer;
 
-    uint32_t _LBA = 0x0;
-    _LBA = init_MBR();
-
-    read_single_sector(_LBA);
-    exFAT* _exFATp = (exFAT*)DAT_buffer;
-
-    exFAT_attribute.DATALBA = _LBA + _exFATp->ClusterHeapOffset;
-    exFAT_attribute.FATLBA = _LBA + _exFATp->FATOffset;
+    exFAT_attribute.DATALBA = LBA + _exFATp->ClusterHeapOffset;
+    exFAT_attribute.FATLBA = LBA + _exFATp->FATOffset;
     exFAT_attribute.BytsPerSector = (uint32_t)power_two((int)_exFATp->BytsPerSector);
     exFAT_attribute.SectorsPerCluster = (uint32_t)power_two((int)_exFATp->SectorsPerCluster);
     exFAT_attribute.FirstRootCluster = _exFATp->FirstRootCluster;
-    exFAT_attribute.CurrentRoot = 0;
-
-    File.Current_index = 0;
-    File.Buffer_index = 0;
-
     clear_buffer(CurrentFolder.Name);
 
     CurrentFolder.FirstCluster = exFAT_attribute.FirstRootCluster;
     CurrentFolder.FileAttribute = (1ULL << 4);
-
-    SD_Registers->BC_SD = exFAT_attribute.SectorsPerCluster & 0x0000FFFF;
 }
 
 void read_cluster(uint32_t _cluster){
     volatile uint32_t _LBA_for_cluster = exFAT_attribute.DATALBA + ((_cluster - 2) * exFAT_attribute.SectorsPerCluster);
 
-    sec_barrier(10);
-    read_multi_sector(_LBA_for_cluster);
-    sec_barrier(10);
-
-    for(int _data = 0; _data < (exFAT_attribute.BytsPerSector * exFAT_attribute.SectorsPerCluster); _data++){
-        File.Buffer[File.Buffer_index] = DAT_buffer[_data];
-        File.Buffer_index++;
-    }
+    SD.SDF->multi_read(_LBA_for_cluster);
 }
 
 uint32_t walk_FAT(uint32_t _cluster){
-    if(exFAT_attribute.CurrentRoot == exFAT_attribute.FirstRootCluster){
-        exFAT_attribute.CurrentRoot = 0;
-    }
-    uint32_t _LBA_for_cluster_FAT = exFAT_attribute.FATLBA + (((exFAT_attribute.CurrentRoot + _cluster) * 4) / exFAT_attribute.BytsPerSector);
-    read_single_sector(_LBA_for_cluster_FAT);
+    uint32_t _LBA_for_cluster_FAT = exFAT_attribute.FATLBA + ((_cluster * 4) / exFAT_attribute.BytsPerSector);
+    SD.SDF->single_read(_LBA_for_cluster_FAT);
 
     uint32_t _tempory_cluster = 0x0;
-    for(int _build = 0; _build < 4; _build++){
-        _tempory_cluster |= ((uint32_t)DAT_buffer[((((exFAT_attribute.CurrentRoot + _cluster) * 4) % exFAT_attribute.BytsPerSector) + _build)] << (8 * _build));
-    }
+    _tempory_cluster = *(uint32_t*)&File.Buffer[((_cluster * 4) % exFAT_attribute.BytsPerSector)];
 
     if(_tempory_cluster >= 0xFFFFFFF8 && _tempory_cluster <= 0xFFFFFFFF){
         return 0xFFFFFFFF;
@@ -106,7 +52,6 @@ uint32_t walk_allocationbitmap(){
             _build = -1;
             if(_tempory_buffer[0] == 0x81){
                 _first_cluster = ((BitMapAllocationDescriptor*)_tempory_buffer)->FirstCluster;
-                clear_file_buffer();
                 break;
             }
         }
@@ -123,7 +68,7 @@ uint32_t walk_allocationbitmap(){
             _current_cluster++;
         }
         else{
-            clear_file_buffer();
+            //clear_file_buffer();
             print("Cluster find\r\n");
             return _current_cluster;
         }
@@ -184,6 +129,7 @@ FileInfo get_file_info(){
 uint16_t name_compare_hash(uint8_t _name[]){
     uint16_t _summ = _name[0];
     int _index = 1;
+
     while(_name[_index] != 0x00){
         if((_summ % 2) == 0){
             _summ = ((_summ / 2) + _name[_index]);
@@ -207,13 +153,4 @@ int get_count_file(){
     }
 
     return _count;
-}
-
-void clear_file_buffer(){
-    for(int _clear = 0; _clear <= File.Buffer_index; _clear++){
-        File.Buffer[_clear] = 0x0;
-        //DAT_buffer[_clear] = 0x0;
-    }
-    File.Current_index = 0;
-    File.Buffer_index = 0;
 }

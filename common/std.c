@@ -1,39 +1,21 @@
 #include<std.h>
 
 void print(char _buffer[]){
-    while(UARTPL011->UART_FR & (1ULL << 3)){
-        __asm__("NOP");
-    }
-    clear_buffer(Tx_buffer.buffer);
+    UART.UARTF->wait_transmition();
     Tx_buffer.head = length_s(_buffer);
     Tx_buffer.tail = 0;
     for(; Tx_buffer.tail <= Tx_buffer.head; Tx_buffer.tail++){
+        Tx_buffer.buffer[Tx_buffer.tail] = 0x0;
         Tx_buffer.buffer[Tx_buffer.tail] = _buffer[Tx_buffer.tail];
     }
     Tx_buffer.tail = 0;
 
-    switch(OutJump->UART_Standart){
-        case 0x504C00B0:
-            UARTPL011->UART_IMSC = (1ULL << 5);
-            break;
-        default:
-            break;
-    }
+    UART.UARTF->IRQ_Tx_init();
 }
 
 void input(char _save_buffer[]){
-    switch(OutJump->UART_Standart){
-        case 0x504C00B0:
-            while(UARTPL011->UART_FR & (1ULL << 3)){
-                __asm__("NOP");
-            }
-
-            UARTPL011->UART_IMSC |= (1ULL << 4);
-            UARTPL011->UART_IMSC |= (1ULL << 6);
-            break;
-        default:
-            break;
-    }
+    UART.UARTF->wait_transmition();
+    UART.UARTF->IRQ_Rx_init();
 
     while(Rx_buffer.end == 0){
         __asm__("WFI");
@@ -45,27 +27,37 @@ void input(char _save_buffer[]){
         }
     }
 
-    switch(OutJump->UART_Standart){
-        case 0x504C00B0:
-            UARTPL011->UART_IMSC &= ~(1ULL << 4);
-            UARTPL011->UART_IMSC &= ~(1ULL << 6);
-            break;
-        default:
-            break;
-    }
+    UART.UARTF->IRQ_disable();
 
     Rx_buffer.buffer[Rx_buffer.head] = '\0';
     Rx_buffer.head--;
 
     for(; Rx_buffer.tail <= Rx_buffer.head; Rx_buffer.tail++){
         _save_buffer[Rx_buffer.tail] = Rx_buffer.buffer[Rx_buffer.tail];
+        Rx_buffer.buffer[Rx_buffer.tail] = 0x0;
     }
-    clear_buffer(Rx_buffer.buffer);
     Rx_buffer.head = -1;
     Rx_buffer.end = 0;
     Rx_buffer.tail = 0;
 }
 
-void println(char _buffer[]){
-    
+void printh64(uint64_t _src){
+    while(UARTPL011->UART_FR & (1ULL << 3)){
+        __asm__("NOP");
+    }
+
+    for(int _index = 7; _index >= 0; _index--){
+        printh((_src >> (8 * _index)) & 0xFF);
+    }
+
+    UARTPL011->UART_DR = '\n';
+    UARTPL011->UART_DR = '\r';
 }
+
+void printh(uint8_t _src){
+    char _chars[] = {"0123456789ABCDEF"};
+
+    UARTPL011->UART_DR = _chars[((_src & 0xF0) >> 4)];
+    UARTPL011->UART_DR = _chars[_src & 0x0F];
+}
+
