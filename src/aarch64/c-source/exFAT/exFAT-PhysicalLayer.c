@@ -143,60 +143,6 @@ uint16_t name_compare_hash(uint8_t _name[]){
     return _summ;
 }
 
-uint16_t summ(uint8_t _buffer[]){
-    uint16_t _summ = _buffer[0];
-
-    for(int _index = 0; _index < 96; _index++){
-        if(_index == 2 || _index == 3){
-            continue;
-        }
-        else{
-            if((_summ % 2) == 0){
-                _summ = ((_summ / 2) + _buffer[_index]);
-            }
-            else{
-                _summ = (((_summ / 2) + 32768) + _buffer[_index]);
-            }
-        }
-    }
-
-    return _summ;
-}
-
-uint16_t name_hash(uint8_t _name[]){
-    uint16_t _summ = _name[0];
-    
-    for(int _index = 0; _index < 30; _index++){
-        if((_summ % 2) == 0){
-            _summ = ((_summ / 2) + _name[_index]);
-        }
-        else{
-            _summ = (((_summ / 2) + 32768) + _name[_index]);
-        }
-    }
-}
-
-void create_descriptors_file(){
-    uint8_t _buffer[96];
-    uint8_t _name[96];
-    for(int _clear = 0; _clear < 96; _clear++){
-        _buffer[_clear] = 0x0;
-        _name[_clear] = 0x0;
-    }
-
-    _buffer[0] = 0x85;
-    _buffer[1] = 2;
-
-    _buffer[33] = 0xC0;
-    _buffer[35] = 5;
-    *(uint16_t*)&_buffer[36] = name_hash(_name);
-
-    _buffer[65] = 0xC1;
-    for(int _copy = 0; _copy < 30; _copy++){
-        _buffer[67 + _copy] = _name[_copy];
-    }
-}
-
 int get_count_file(){
     int _count = 0;
 

@@ -4,11 +4,16 @@ int CurrentIndex = 0;
 FileInfo CurrentFolder;
 
 void open(char _name[]){
-    CurrentIndex = 0;
+    CurrentIndex = 5;
+
+    if(_name[5] == '\0' || _name[5] == ' '){
+        print("Name invalid\r\n");
+        return;
+    }
 
     uint8_t _current_name[260];
     uint8_t _current_name_in_ASCII[260];
-    for(int _clear = 0; _clear < 260; _clear++){
+    for(int _clear = 0; _clear < 260; _clear++){ 
         _current_name[_clear] = 0x0;
         _current_name_in_ASCII[_clear] = 0x0;
     }
@@ -17,7 +22,7 @@ void open(char _name[]){
 
     uint32_t _current_cluster = CurrentFolder.FirstCluster;
     int _cluster_count = 0;
-    if(_name[0] == '/'){
+    if(_name[5] == '/'){
         CurrentFolder.FirstCluster = exFAT_attribute.FirstRootCluster;
         CurrentFolder.NoFATChain = 0x0;
         _current_cluster = CurrentFolder.FirstCluster;
@@ -173,6 +178,6 @@ void display_folder(){
 
 void current_folder_name_clear(){
     for(int _clear = 0; _clear < 260; _clear++){
-            CurrentFolder.Name[_clear] = 0x0;
+        CurrentFolder.Name[_clear] = 0x0;
     }
 }

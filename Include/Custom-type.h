@@ -81,6 +81,25 @@ typedef struct{
 }SDAR;
 
 typedef struct{
+    volatile uint32_t CTLR_SD;
+    volatile uint32_t PWC_SD;
+    volatile uint32_t CLKDIV_SD;
+    volatile uint32_t CLKS_SD;
+    volatile uint32_t CLKE_SD;
+    volatile uint32_t TIME_SD;
+    uint32_t RESERVE_1[1];
+    volatile uint32_t BS_SD;
+    volatile uint32_t BC_SD;
+    volatile uint32_t IM_SD;
+    volatile uint32_t ARG_SD;
+    volatile uint32_t CMD_SD;
+    volatile uint32_t RESP_SD[4];
+    volatile uint32_t IMS_SD;
+    uint32_t RESERVE_2[111];
+    volatile uint32_t BDP_SD;
+}SDRR;
+
+typedef struct{
     CMDR CMD0;
     CMDR CMD8;
     CMDR CMD55;

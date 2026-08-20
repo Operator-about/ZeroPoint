@@ -2,12 +2,12 @@
 
 SDAR* SDA;
 
-void CMD_send(CMDR _CMD){
+void SDA_CMD_send(CMDR _CMD){
     SDA->ARG_SD = _CMD.arg;
     SDA->CMD_SD = _CMD.CMD;
 }
 
-void IRQ_read(){
+void SDA_IRQ_read(){
     File.Current_index = 0;
     File.Buffer_index = 0;
     uint32_t _tempory_buffer = 0x0;
@@ -27,27 +27,27 @@ void IRQ_read(){
     SDA->NS_SD |= (1ULL << 5);
 }
 
-void register_init(){
+void SDA_register_init(){
     SDA = (SDAR*)SD.SDAddress;
 }
 
-void block_init(){
+void SDA_block_init(){
     SDA->BC_SD = 64;
     SDA->BS_SD = 512;
 }
 
-void wait_command(){
+void SDA_wait_command(){
     while((SDA->NS_SD & (1ULL << 0)) == 0){
         __asm__("NOP");
     }
 }
 
 const HALSDF SDAF = {
-    .CMD_send = &CMD_send,
-    .IRQ_read = &IRQ_read,
+    .CMD_send = &SDA_CMD_send,
+    .IRQ_read = &SDA_IRQ_read,
     .multi_read = &read_multi_sector,
     .single_read = &read_single_sector,
-    .register_init = &register_init,
-    .block_init = &block_init,
-    .wait_command = &wait_command
+    .register_init = &SDA_register_init,
+    .block_init = &SDA_block_init,
+    .wait_command = &SDA_wait_command
 };

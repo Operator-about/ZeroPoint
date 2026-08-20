@@ -6,7 +6,7 @@
 #include<Stringz.h>
 #include<exFAT.h>
 #include<SD-Standart.h>
-#include<SD-Standart.h>
+#include<SD-DW.h>
 
 extern SDCMD CMD;
 extern FileBuffer File;

@@ -9,8 +9,8 @@
 extern const HALSDF SDAF;
 extern SDAR* SDA;
 
-void IRQ_read();
-void register_init();
-void block_init();
-void CMD_send(CMDR _CMD);
-void wait_command();
+void SDA_IRQ_read();
+void SDA_register_init();
+void SDA_block_init();
+void SDA_CMD_send(CMDR _CMD);
+void SDA_wait_command();

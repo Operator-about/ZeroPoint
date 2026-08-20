@@ -28,4 +28,3 @@ void open_file(FileInfo _info);
 void display_folder();
 void current_folder_name_clear();
 void parser(char _path[], uint8_t _name[]);
-void read_mode(uint32_t _cluster, FileInfo _info);

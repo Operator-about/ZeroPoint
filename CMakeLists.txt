@@ -11,7 +11,9 @@ ${CMAKE_CURRENT_SOURCE_DIR}/common/std.c
 ${CMAKE_CURRENT_SOURCE_DIR}/common/Stringz.c
 ${CMAKE_CURRENT_SOURCE_DIR}/common/Mathz.c
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/table-handel.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/ZeroShell.c
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/SD/SD.c
+${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/SD/SD-DW.c
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/SD/SD-Standart.c
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/Kernel-modules.c
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/exFAT/exFAT-PhysicalLayer.c

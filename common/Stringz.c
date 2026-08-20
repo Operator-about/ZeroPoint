@@ -13,15 +13,15 @@ int compare_s(uint8_t _comble_buffer[], char _src_buffer[]){
     int _result = 0;
     int _index = 0;
     while(1){
+        if(_src_buffer[_index] == '\0'){
+            break;
+        }
+
         if(_comble_buffer[_index] == _src_buffer[_index]){
             _result = 1;
         }
         else{
             _result = 0;
-            break;
-        }
-
-        if(_src_buffer[_index] == '\0'){
             break;
         }
         _index++;
