@@ -55,11 +55,16 @@ void IRQ_disable_pl011(){
     UARTPL011->UART_IMSC &= ~((1ULL << 4) | (1ULL << 6) | (1ULL << 5));
 }
 
+void char_write_pl011(char _char){
+    UARTPL011->UART_DR = _char;
+}
+
 const HALUARTF UARTPL011F = {
     .Register_init = &reg_init_pl011,
     .IRQ_handel = &irq_switch_pl011,
     .IRQ_Tx_init = &Tx_init_pl011,
     .IRQ_Rx_init = &Rx_init_pl011,
     .IRQ_disable = &IRQ_disable_pl011,
-    .wait_transmition = &wait_for_stop_pl011
+    .wait_transmition = &wait_for_stop_pl011,
+    .char_write = &char_write_pl011
 };

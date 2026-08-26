@@ -19,6 +19,8 @@ vector_table_center:
         ERET
     .align 7
     synchronous_elxh:
+        BL Synch_handel
+
         ERET
     .align 7
     irq_handel_elxh:

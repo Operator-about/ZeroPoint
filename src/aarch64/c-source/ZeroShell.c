@@ -24,7 +24,9 @@ void shell_init(){
             help_command();
         }
         else if(compare_s(KeyboardBufferInput, "open") == 1){
+            CurrentIndex = 5;
             open_mode();
+            CurrentIndex = 0;
         }
         else{
             print("Unknow command. Please input command: help - for more information\r\n");
@@ -33,15 +35,15 @@ void shell_init(){
 }
 
 void ZeroPoint_logo(){
-    print("=========================================================\r\n");
+    print("========================================================\r\n");
     print("_____  _____  _____  _____  _____  _____  +  _____  +    \r\n");
     print("   // ||     ||   ||||   ||||   ||||   || | ||   ||-|-   \r\n");
     print("  //  ||____ ||     ||   ||||___||||   || | ||   || |    \r\n");
     print(" //   ||     ||     ||   ||||     ||   || | ||   || |    \r\n");
     print("//___ ||____ ||     ||___||||     ||___|| | ||   || |___ \r\n");
-    print("=========================================================\r\n");
-    print("Kernel: v0.0.3\r\n");
-    print("Build date: 20.08.2026\r\n");
+    print("========================================================\r\n");
+    print("Kernel: v0.4.0\r\n");
+    print("Build date: 26.08.2026\r\n");
 }
 
 void open_mode(){

@@ -7,9 +7,9 @@ set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/linker.ld")
 set(SOURCES ${CMAKE_CURRENT_SOURCE_DIR}
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/MMU.c
 ${CMAKE_CURRENT_SOURCE_DIR}/src/Kernel.c
-${CMAKE_CURRENT_SOURCE_DIR}/common/std.c
-${CMAKE_CURRENT_SOURCE_DIR}/common/Stringz.c
-${CMAKE_CURRENT_SOURCE_DIR}/common/Mathz.c
+${CMAKE_CURRENT_SOURCE_DIR}/KZero-std/Kstd.c
+${CMAKE_CURRENT_SOURCE_DIR}/KZero-std/Stringz.c
+${CMAKE_CURRENT_SOURCE_DIR}/KZero-std/Mathz.c
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/table-handel.c
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/ZeroShell.c
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aarch64/c-source/SD/SD.c
@@ -30,7 +30,7 @@ target_include_directories(${PROJECT_NAME}.elf PUBLIC ${CMAKE_CURRENT_SOURCE_DIR
 target_include_directories(${PROJECT_NAME}.elf PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Include/UART/)
 target_include_directories(${PROJECT_NAME}.elf PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Include/SD/)
 target_include_directories(${PROJECT_NAME}.elf PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Include/exFAT/)
-target_include_directories(${PROJECT_NAME}.elf PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Include/common/)
+target_include_directories(${PROJECT_NAME}.elf PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Include/KZero-std/)
 
 target_link_options(${PROJECT_NAME}.elf PRIVATE
     "-T${LINKER_SCRIPT}"

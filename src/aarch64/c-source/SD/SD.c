@@ -2,12 +2,13 @@
 
 SDCMD CMD;
 FileBuffer File;
+int ByteCount;
 
 void read_multi_sector(uint32_t _sector){
-    SD.SDF->block_init();
+    SD.SDF->block_init(exFAT_attribute.BytsPerSector, exFAT_attribute.SectorsPerCluster);
     
     CMD.CMD23.arg = 0x0;
-    CMD.CMD23.arg |= 64;
+    CMD.CMD23.arg |= exFAT_attribute.SectorsPerCluster;
     CMD.CMD23.CMD = 0x0;
     CMD.CMD23.CMD = (2ULL << 16) | (1ULL << 19) | (1ULL << 20) | (23ULL << 24);
     
@@ -22,6 +23,8 @@ void read_multi_sector(uint32_t _sector){
 }
 
 void read_single_sector(uint32_t _sector){
+    SD.SDF->block_init(512, 1);
+    
     CMD.CMD17.arg = 0x0;
     CMD.CMD17.arg |= _sector;
     CMD.CMD17.CMD = 0x0;

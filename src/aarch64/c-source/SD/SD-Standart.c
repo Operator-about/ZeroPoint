@@ -12,7 +12,7 @@ void SDA_IRQ_read(){
     File.Buffer_index = 0;
     uint32_t _tempory_buffer = 0x0;
     
-    for(int _index = 0; _index < 8192; _index++){
+    for(int _index = 0; _index < ByteCount; _index++){
         _tempory_buffer = SDA->BDP_SD;
         
         for(int _build = 0; _build < 4; _build++){
@@ -31,9 +31,11 @@ void SDA_register_init(){
     SDA = (SDAR*)SD.SDAddress;
 }
 
-void SDA_block_init(){
-    SDA->BC_SD = 64;
-    SDA->BS_SD = 512;
+void SDA_block_init(int _block_size, int _block_count){
+    SDA->BC_SD = _block_count;
+    SDA->BS_SD = _block_size;
+
+    ByteCount = (_block_size * _block_count) / 4;
 }
 
 void SDA_wait_command(){

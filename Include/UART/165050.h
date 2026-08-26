@@ -16,3 +16,4 @@ void reg_init_165050();
 void Tx_init_165050();
 void Rx_init_165050();
 void IRQ_disable_165050();
+void char_write_165050(char _char);

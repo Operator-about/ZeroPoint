@@ -6,8 +6,11 @@
 #include<MBR.h>
 #include<UART.h>
 
+extern int CurrentIndex;
 extern exFATAttrubute exFAT_attribute;
 extern FileInfo CurrentFolder;
+extern uint32_t* AppBuffer;
+extern int AppIndexBuffer;
 
 //Физический уровень
 void init_exFAT();
@@ -18,13 +21,13 @@ void create_descriptors_file();
 FileInfo get_file_info();
 uint32_t walk_allocationbitmap();
 uint16_t name_compare_hash(uint8_t _name[]);
-uint16_t name_hash(uint8_t _name[]);
-uint16_t summ(uint8_t _buffer[]);
 
 //Виртуальный уровень
 void open(char _name[]);
-void open_folder();
-void open_file(FileInfo _info);
+void open_file(FileInfo* _info);
 void display_folder();
 void current_folder_name_clear();
 void parser(char _path[], uint8_t _name[]);
+void file_or_dir(FileInfo* _info);
+int check_app(FileInfo* _info);
+void to_app();

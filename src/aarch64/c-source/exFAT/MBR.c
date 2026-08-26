@@ -4,6 +4,7 @@ MBR MBRM;
 uint32_t LBA;
 
 void init_MBR(){
+    SD.SDF->block_init(512, 1);
     SD.SDF->single_read(0);
     MBRM = *(MBR*)&File.Buffer;
 }

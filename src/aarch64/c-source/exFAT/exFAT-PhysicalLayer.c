@@ -108,9 +108,14 @@ FileInfo get_file_info(){
                     break;
                 case 0xC1:
                     for(int _get_name = 0; _get_name < 30; _get_name++){
-                        _file_info.Name[_file_info.NameIndex + _get_name] = _tempory_buffer[2+_get_name];
+                        if(_tempory_buffer[_get_name] == 0x00){
+                            continue;
+                        }
+                        else{
+                            _file_info.Name[_file_info.NameIndex] = _tempory_buffer[2+_get_name];
+                            _file_info.NameIndex++;
+                        }
                     }
-                    _file_info.NameIndex+=30;
                     _index_secondary++;
                     break;
                 default:

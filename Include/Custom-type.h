@@ -87,7 +87,7 @@ typedef struct{
     volatile uint32_t CLKS_SD;
     volatile uint32_t CLKE_SD;
     volatile uint32_t TIME_SD;
-    uint32_t RESERVE_1[1];
+    volatile uint32_t CTYPE_SD;
     volatile uint32_t BS_SD;
     volatile uint32_t BC_SD;
     volatile uint32_t IM_SD;
@@ -183,7 +183,7 @@ typedef struct{
 }FileNameDescriptor;
 
 typedef struct{
-    uint8_t Buffer[32768];
+    uint8_t Buffer[131072];
     int Buffer_index;
     int Current_index;
 }FileBuffer;
@@ -215,6 +215,7 @@ typedef struct{
     void (*IRQ_Rx_init)();
     void (*IRQ_Tx_init)();
     void (*IRQ_disable)();
+    void (*char_write)(char _char);
 }HALUARTF;
 
 typedef struct{
@@ -227,7 +228,7 @@ typedef struct{
     void (*CMD_send)(CMDR _CMD);
     void (*single_read)(uint32_t _sector);
     void (*multi_read)(uint32_t _sector);
-    void (*block_init)();
+    void (*block_init)(int _block_size, int _block_count);
     void (*register_init)();
     void (*wait_command)();
 }HALSDF;

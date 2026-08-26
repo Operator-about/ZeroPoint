@@ -47,11 +47,16 @@ void IRQ_disable_165050(){
     UART165050->UART_DEI &= ~((1ULL << 0) | (1ULL << 1));
 }
 
+void char_write_165050(char _char){
+    UART165050->UART_TRD = _char;
+}
+
 const HALUARTF UART165050F = {
     .Register_init = &reg_init_165050,
     .IRQ_handel = &irq_switch_165050,
     .IRQ_Tx_init = &Tx_init_165050,
     .IRQ_Rx_init = &Rx_init_165050,
     .IRQ_disable = &IRQ_disable_165050,
-    .wait_transmition = &wait_for_stop_165050
+    .wait_transmition = &wait_for_stop_165050,
+    .char_write = &char_write_165050
 };
