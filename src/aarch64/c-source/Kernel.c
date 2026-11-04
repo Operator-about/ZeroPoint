@@ -1,7 +1,7 @@
 #include<Kernel-modules.h>
 #include<MMU.h>
 #include<Stringz.h>
-#include<std.h>
+#include<Kstd.h>
 #include<SD.h>
 #include<exFAT.h>
 #include<UART.h>
@@ -12,6 +12,7 @@ GICCv2* GICv2;
 JumpData* OutJump;
 HALUART UART;
 HALSD SD;
+
 
 int main(void){
     __asm__("MOV %0, X10" : "=r"(OutJump));
@@ -52,8 +53,6 @@ int main(void){
     Rx_buffer.end = 0;
     Rx_buffer.tail = 0;
 
-    __asm__("MOV X10, XZR");
-
     __asm__("ISB");
 
     __asm__("MSR DAIFClr, #2");
@@ -73,4 +72,3 @@ int main(void){
 
     shell_init();
 }
-

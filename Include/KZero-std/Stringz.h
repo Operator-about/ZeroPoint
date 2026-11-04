@@ -1,5 +1,5 @@
 #pragma once
-#include<Custom-type.h>
+#include<stdint.h>
 #include<Kernel-modules.h>
 #include<Mathz.h>
 int length_s(char _buffer[]);
