@@ -7,7 +7,7 @@ void SDR_IRQ_read(){
     File.Buffer_index = 0;
     uint32_t _tempory_buffer = 0x0;
     
-    for(int _index = 0; _index < 8192; _index++){
+    for(int _index = 0; _index < ByteCount; _index++){
         _tempory_buffer = SDR->BDP_SD;
         
         for(int _build = 0; _build < 4; _build++){
@@ -24,9 +24,11 @@ void SDR_register_init(){
     SDR = (SDRR*)SD.SDAddress;
 }
 
-void SDR_block_init(){
-    SDR->BS_SD = 512;
-    SDR->BC_SD = SDR->BS_SD * 64;
+void SDR_block_init(int _block_size, int _block_count){
+    SDR->BS_SD = _block_size;
+    SDR->BC_SD = _block_size * _block_count;
+
+    ByteCount = (_block_size * _block_count) / 4;
 }
 
 void SDR_CMD_send(CMDR _CMD){
@@ -71,5 +73,5 @@ const HALSDF SDRF = {
     .single_read = &read_single_sector,
     .register_init = &SDR_register_init,
     .block_init = &SDR_block_init,
-    .wait_command = &SDR_wait_command
+    .wait_command = &SDR_wait_command,
 };
