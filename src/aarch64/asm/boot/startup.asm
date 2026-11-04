@@ -1,6 +1,10 @@
 .section ".text.boot", "ax"
 .global start
 start:
+    LDR X0, =0xFF1A0000
+    MOV W1, #'U'
+    STR W1, [X0]
+
     MOV X0, XZR
     ORR X0, X0, #(1ULL << 31)
     AND X0, X0, #~(1ULL << 7)

@@ -53,8 +53,6 @@ int main(void){
     Rx_buffer.end = 0;
     Rx_buffer.tail = 0;
 
-    __asm__("MOV X10, XZR");
-
     __asm__("ISB");
 
     __asm__("MSR DAIFClr, #2");

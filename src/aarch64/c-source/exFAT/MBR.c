@@ -4,9 +4,14 @@ MBR MBRM;
 uint32_t LBA;
 
 void init_MBR(){
+<<<<<<< Updated upstream
     SD.SDF->block_init(512, 1);
     SD.SDF->single_read(0);
     MBRM = *(MBR*)&File.Buffer;
+=======
+    // SD.SDF->single_read(0);
+    // MBRM = *(MBR*)&File.Buffer;
+>>>>>>> Stashed changes
 }
 
 void get_LBA_for_exFAT(){
