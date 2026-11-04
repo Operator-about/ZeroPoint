@@ -1,7 +1,7 @@
 #pragma once
 
 #include<SD.h>
-#include<Custom-type.h>
+#include<type-SD.h>
 #include<Kernel-modules.h>
 #include<exFAT.h>
 

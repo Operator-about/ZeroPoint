@@ -2,7 +2,6 @@
 
 #include<Kstd.h>
 #include<exFAT.h>
-#include<Custom-type.h>
 #include<Stringz.h>
 
 extern char CurrentNameDir[256];

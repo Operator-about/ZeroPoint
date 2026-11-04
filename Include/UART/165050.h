@@ -1,7 +1,7 @@
 #pragma once
 
 #include<UART.h>
-#include<Custom-type.h>
+#include<type-UART.h>
 
 extern UART165050R* UART165050;
 extern const HALUARTF UART165050F;

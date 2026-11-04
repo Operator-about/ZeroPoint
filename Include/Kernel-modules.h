@@ -1,7 +1,7 @@
 #pragma once
 #define DEBUG 1
 #define VERISON 003
-#include<Custom-type.h>
+#include<type-Kernel.h>
 #include<stdalign.h>
 #include<Stringz.h>
 #include<Kstd.h>

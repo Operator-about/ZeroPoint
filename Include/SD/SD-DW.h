@@ -1,6 +1,6 @@
 #pragma once
 
-#include<Custom-type.h>
+#include<type-SD.h>
 #include<SD.h>
 
 extern const HALSDF SDRF;

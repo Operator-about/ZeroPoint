@@ -77,18 +77,17 @@ uint32_t walk_allocationbitmap(){
 
 
 FileInfo get_file_info(){
-    // uint8_t _tempory_buffer[32];
-    // FileInfo _file_info;
-    // _file_info.SecondaryCount = 0;
-    // int _index_secondary = -1;
-    // int _tempory_index = 0;
-    // _file_info.NameIndex = 0;
+    uint8_t _tempory_buffer[32];
+    FileInfo _file_info;
+    _file_info.SecondaryCount = 0;
+    int _index_secondary = -1;
+    int _tempory_index = 0;
+    _file_info.NameIndex = 0;
 
-    // for(int _clear = 0; _clear < 260; _clear++){
-    //     _file_info.Name[_clear] = 0x0;
-    // }
+    for(int _clear = 0; _clear < 260; _clear++){
+        _file_info.Name[_clear] = 0x0;
+    }
 
-<<<<<<< Updated upstream
     for(int _index = 0; _index < File.Buffer_index; _index++){
         _tempory_buffer[_tempory_index] = File.Buffer[File.Current_index];
         File.Current_index++;
@@ -122,44 +121,14 @@ FileInfo get_file_info(){
                 default:
                     break;
             }
-=======
-    // for(int _index = 0; _index < File.Buffer_index; _index++){
-    //     _tempory_buffer[_tempory_index] = File.Buffer[File.Current_index];
-    //     File.Current_index++;
-    //     _tempory_index++;
-    //     if(_tempory_index == 32){
-    //         _tempory_index = 0;
-    //         switch(_tempory_buffer[0]){
-    //             case 0x85:
-    //                 _index_secondary = 0;
-    //                 _file_info.SecondaryCount = ((FileEntryDescriptor*)_tempory_buffer)->SecondaryCount;
-    //                 _file_info.FileAttribute = ((FileEntryDescriptor*)_tempory_buffer)->FileAttributes;
-    //                 break;
-    //             case 0xC0:
-    //                 _file_info.FirstCluster = ((StreamExtensionsDescriptor*)_tempory_buffer)->FirstCluster;
-    //                 _file_info.NoFATChain = ((StreamExtensionsDescriptor*)_tempory_buffer)->GenralSecondaryFlags;
-    //                 _file_info.FileLength = ((StreamExtensionsDescriptor*)_tempory_buffer)->DataLength;
-    //                 _index_secondary++;
-    //                 break;
-    //             case 0xC1:
-    //                 for(int _get_name = 0; _get_name < 30; _get_name++){
-    //                     _file_info.Name[_file_info.NameIndex + _get_name] = _tempory_buffer[2+_get_name];
-    //                 }
-    //                 _file_info.NameIndex+=30;
-    //                 _index_secondary++;
-    //                 break;
-    //             default:
-    //                 break;
-    //         }
->>>>>>> Stashed changes
             
-    //         if(_index_secondary >= _file_info.SecondaryCount){
-    //             break;
-    //         }
-    //     }
-    // }
+            if(_index_secondary >= _file_info.SecondaryCount){
+                break;
+            }
+        }
+    }
 
-    // return _file_info;
+    return _file_info;
 }
 
 uint16_t name_compare_hash(uint8_t _name[]){

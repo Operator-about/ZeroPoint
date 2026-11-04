@@ -2,7 +2,7 @@
 
 #include<Kernel-modules.h>
 #include<Kstd.h>
-#include<Custom-type.h>
+#include<type-SD.h>
 #include<Stringz.h>
 #include<exFAT.h>
 #include<SD-Standart.h>

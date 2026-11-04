@@ -1,6 +1,6 @@
 #pragma once
 #include<Kernel-modules.h>
-#include<Custom-type.h>
+#include<type-UART.h>
 #include<UART.h>
 
 extern UARTPL011R* UARTPL011;
